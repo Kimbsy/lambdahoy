@@ -8,19 +8,49 @@
 (def fill (partial apply q/fill))
 (def stroke (partial apply q/stroke))
 
-(defn length
+(defn zero-vector?
+  "Predicate to check if a vector has length 0."
+  [v]
+  (every? zero? v))
+
+(defn magnitude
   "Calculate the length of a vector."
   [v]
-  (Math/sqrt (+ (Math/pow (first v) 2) (Math/pow (second v) 2))))
+  (Math/sqrt (reduce + (map #(Math/pow % 2)
+                            v))))
 
-(defn get-velocity-vector
-  "Calculate a velocity vector from an angle in degrees and a speed
-  which defaults to 1. Second element is negative because y axis is
-  inverted."
-  [r & {:keys [speed] :or {speed 1}}]
+(defn unit-vector
+  "Calculate the unit vector of a given 2D vector."
+  [v]
+  (when-not (zero-vector? v)
+    (map #(/ % (magnitude v)) v)))
+
+(defn orthogonals
+  "Calculate the two orthogonal vectors to a given 2D vector.
+
+  Returns [90-degrees-left-vector 
+           90-degrees-right-vector]"
+  [[x y]]
+  [[(- y) x]
+   [y (- x)]])
+
+(defn direction-vector
+  "Calculate the unit direction vector based on the rotation angle."
+  [{:keys [r]}]
+  [(q/sin (q/radians r))
+   (- (q/cos (q/radians r)))])
+
+(defn velocity-vector
+  "Calculate the velocity vector based on the direction vector and
+  speed."
+  [{:keys [speed] :as s}]
   (map (partial * speed)
-       [(q/sin (q/radians r))
-        (- (q/cos (q/radians r)))]))
+       (direction-vector s)))
+
+(defn scale-by
+  "Generates a function which will scale a vector by the given factor."
+  [factor]
+  (fn [v] (map (partial * factor) v)))
 
 (defn wrap-trans-rot
   "Perform a translation, a rotation, invoke the supplied

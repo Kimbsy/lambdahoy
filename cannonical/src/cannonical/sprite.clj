@@ -15,15 +15,21 @@
       (update s :animation-frame #(mod (inc %) max-frame)))
     s))
 
+(defn update-pos
+  [{:keys [pos vel] :as s}]
+  (assoc s :pos (map + pos vel)))
+
 (defn update-self
   [s]
   (-> s
       update-frame-delay
-      update-animation))
+      update-animation
+      update-pos))
 
 (defn draw-self
-  [{:keys [x y w h spritesheet current-animation animation-frame] :as s}]
-  (let [animation (current-animation (:animations s))
+  [{:keys [pos w h spritesheet current-animation animation-frame] :as s}]
+  (let [[x y]     pos
+        animation (current-animation (:animations s))
         x-offset  (* animation-frame w)
         y-offset  (* (:y-offset animation) h)
         g         (q/create-graphics w h)]

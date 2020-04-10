@@ -1,20 +1,19 @@
 (ns cannonical.sprite.ship
   (:require [cannonical.utils :as u]
             [quil.core :as q]
-            [cannonical.sprite :as sprite]))
+            [cannonical.sprite :as sprite]
+            [cannonical.sprite.projectile :as projectile]))
 
 (defn ->ship
   [x y r & {:keys [pc? crew vx vy] :or {pc? false crew [] vx 0 vy 0}}]
-  (let [pos [x y]
-        vel [vx vy]]
-    {:pos   pos
-     :vel   vel
-     :r     r
-     :rvel  0
-     :speed (u/length vel)
-     :image (q/load-image "images/ship.png")
-     :pc?   pc?
-     :crew  crew}))
+  {:pos   [x y]
+   :vel   [vx vy]
+   :r     r
+   :rvel  0
+   :speed (u/magnitude [vx vy])
+   :image (q/load-image "images/ship.png")
+   :pc?   pc?
+   :crew  crew})
 
 (defn rvel-drift
   [rvel]
@@ -52,7 +51,7 @@
 (defn update-self
   [{:keys [held-keys]} {:keys [pos vel r speed crew] :as ship}]
   (-> ship
-      (assoc :vel (u/get-velocity-vector r :speed speed))
+      (assoc :vel (u/velocity-vector ship))
       (assoc :pos (map + pos vel))
       (assoc :rvel (update-rvel ship held-keys))
       (assoc :speed (update-speed ship held-keys))
@@ -68,3 +67,21 @@
         (q/image-mode :center)
         (q/image image 0 0)
         (doall (map sprite/draw-self crew))))))
+
+(defn fire
+  [{:keys [pos vel] :as s}]
+  (->> s
+       u/direction-vector
+       u/orthogonals
+       (map (u/scale-by 10))
+       (map (partial map + vel))
+       (map #(projectile/->projectile pos :vel %))))
+
+(defn key-pressed
+  [state e]
+  (if (= :space (:key e))
+    (let [pc-ships (filter :pc? (get-in state [:sprites :ocean :ships]))]
+      (update-in state
+                 [:sprites :ocean :projectiles]
+                 #(take 100 (concat (apply concat (map fire pc-ships)) %))))
+    state))

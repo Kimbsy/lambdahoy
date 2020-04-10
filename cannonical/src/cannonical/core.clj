@@ -36,7 +36,7 @@
   [& args]
   (q/sketch
    :title "Cannonical: how ships *really* blew up"
-   :size :fullscreen #_ [1200 800]
+   :size [1800 1200]
    :setup setup
    :update update-state
    :draw scene/draw-state*

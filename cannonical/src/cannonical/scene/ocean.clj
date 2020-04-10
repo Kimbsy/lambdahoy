@@ -3,7 +3,9 @@
             [cannonical.utils :as u]
             [cannonical.sprite.ship :as ship]
             [cannonical.sprite.captain :as captain]
-            [quil.core :as q]))
+            [cannonical.sprite.projectile :as projectile]
+            [quil.core :as q]
+            [cannonical.sprite :as sprite]))
 
 (defn init-sprites
   []
@@ -11,23 +13,38 @@
                         (/ (q/height) 2)
                         0
                         :pc? true
-                        :crew [(captain/->captain 0 110)])]})
+                        :crew [(captain/->captain 0 110)])]
+   :projectiles []})
 
 (defn update-state
   [state]
   (-> state
       (update-in [:sprites :ocean :ships]
-                 #(map (partial ship/update-self state) %))))
+                 #(map (partial ship/update-self state) %))
+      (update-in [:sprites :ocean :projectiles]
+                 #(map sprite/update-self %))))
 
 (defn draw-state
   [state]
   (u/background u/blue)
   (doall (map ship/draw-self
-              (get-in state [:sprites :ocean :ships]))))
+              (get-in state [:sprites :ocean :ships])))
+  (doall (map sprite/draw-self
+              (get-in state [:sprites :ocean :projectiles]))))
+
+(defn switch-to-menu
+  "If esc was pressed, exit to menu"
+  [state e]
+  ;; @TODO: this
+  state)
 
 (defn key-pressed
   [state e]
-  state)
+  (reduce (fn [acc-state f]
+            (f acc-state e))
+          state
+          [switch-to-menu
+           ship/key-pressed]))
 
 (defn key-released
   [state e]

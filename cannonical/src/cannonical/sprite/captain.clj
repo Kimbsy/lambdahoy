@@ -3,8 +3,8 @@
 
 (defn ->captain
   [x y]
-  {:x x
-   :y y
+  {:pos [x y]
+   :vel [0 0]
    :w 16
    :h 24
 
