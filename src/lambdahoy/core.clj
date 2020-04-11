@@ -38,14 +38,12 @@
 
 (defn full-exit
   [state]
-  (sound/stop-music)
-;  (System/exit 0)
-  )
+  (sound/stop-music))
 
 (defn -main
   [& args]
   (q/sketch
-   :title "Lambdahoy: how ships *really* blew up"
+   :title "Lambdahoy: functional adventures on the high seas"
    :size [1800 1200]
    :setup setup
    :update update-state
