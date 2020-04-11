@@ -1,0 +1,39 @@
+Things to do:
+
+* ship
+** TODO redesign, needs to be much smaller
+** TODO add health bar
+*** where?
+** cannons
+*** TODO draw them
+*** TODO give them a cooldown, show a bar
+*** TODO be able to add more cannons
+* enemy ships
+** TODO draw them
+** TODO let them roam about on their own
+** TODO have them fire at the player's ship
+* cannonballs
+** TODO detect ball/ship collisions
+** TODO add explosions on hit
+*** add splash on miss?
+*** different ranges?
+*** ball/ball collisions?
+* map
+** TODO should be big, camera should follow ship around
+** TODO islands
+** maybe bounded ocean?
+** wave textures?
+* TODO menu screen
+* TODO ship upgrade/shop screen
+* TODO game end screen
+* TODO music
+
+Gameplay ideas
+
+* civilians have cargo you can steal
+* pirates attack you if you have cargo
+* navy attack you if you kill civilians
+** navy attack pirates, and vice versa
+* you can sell cargo at a port?
+* you can use money to upgrade ship
+** at a port? anywhere?
