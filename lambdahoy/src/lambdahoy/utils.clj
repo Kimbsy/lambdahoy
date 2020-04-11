@@ -4,6 +4,8 @@
 (def blue [0 153 255])
 (def black [0])
 (def white [255])
+(def grey [120])
+(def gray grey)
 
 (def title-text-size 120)
 (def default-text-size 25)
@@ -66,6 +68,27 @@
   (q/rotate (q/radians r))
   (f)
   (q/reset-matrix))
+
+(defn encloses?
+  "Predicate to determine if a rect contains a pos."
+  [{:keys [pos w h]} {:keys [x y]}]
+  (let [[xr yr] pos]
+    (and (<= xr x (+ xr w))
+         (<= yr y (+ yr h)))))
+
+(defn darken
+  [color]
+  (map #(max 0 (- % 30)) color))
+
+(defn lighten
+  [color]
+  (map #(min 255 (+ % 30)) color))
+
+(defn change-scene
+  [state target]
+  (-> state
+      (assoc :change-scene? true)
+      (assoc :target-scene target)))
 
 (defn add-held-key
   [state e]

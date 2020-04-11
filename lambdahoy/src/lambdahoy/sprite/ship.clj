@@ -5,7 +5,8 @@
             [lambdahoy.sprite.projectile :as projectile]))
 
 (defn ->ship
-  [x y r & {:keys [pc? crew vx vy] :or {pc? false crew [] vx 0 vy 0}}]
+  [x y r & {:keys [pc? crew vx vy]
+            :or   {pc? false crew [] vx 0 vy 0}}]
   {:pos   [x y]
    :vel   [vx vy]
    :r     r

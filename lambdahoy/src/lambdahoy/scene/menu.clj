@@ -1,9 +1,19 @@
 (ns lambdahoy.scene.menu
   (:require [lambdahoy.scene :as scene]
             [lambdahoy.sprite :as sprite]
+            [lambdahoy.sprite.button :as button]
             [lambdahoy.sprite.text :as text]
             [lambdahoy.utils :as u]
             [quil.core :as q]))
+
+(defn start-game
+  [state]
+  (u/change-scene state :ocean))
+
+(defn exit-game
+  [state]
+  (prn "exit")
+  state)
 
 (defn init-sprites
   []
@@ -18,9 +28,8 @@
                           :style :italic
                           :color u/white)]
    :waves   []
-   :buttons [;; (button/->button "PLAY" [(* (q/width) 1/2) (* (q/height) 1/3)])
-             ;; (button/->button "QUIT" [(* (q/width) 1/2) (* (q/height) 2/3)])
-             ]})
+   :buttons [(button/->button "PLAY" [(* (q/width) 1/2) (* (q/height) 1/2)] start-game)
+             (button/->button "QUIT" [(* (q/width) 1/2) (* (q/height) 2/3)] exit-game)]})
 
 (defn update-state
   [state]
@@ -33,7 +42,7 @@
               (get-in state [:sprites :menu :waves])))
   (doall (map text/draw-self
               (get-in state [:sprites :menu :text])))
-  (doall (map sprite/draw-static-sprite
+  (doall (map button/draw-self
               (get-in state [:sprites :menu :buttons]))))
 
 (defn key-pressed
@@ -46,11 +55,22 @@
 
 (defn mouse-pressed
   [state e]
-  state)
+  (-> state
+      (update-in [:sprites :menu :buttons]
+                 button/mouse-pressed
+                 e)))
 
 (defn mouse-released
   [state e]
-  state)
+  (as-> state state
+    (reduce (fn [acc-state f]
+              (f acc-state e))
+            state
+            [(button/mouse-released (get-in state [:sprites :menu :buttons]))])
+    (update-in state [:sprites :menu :buttons]
+               (fn [buttons]
+                 (map #(assoc % :held? false)
+                      buttons)))))
 
 (deftype Menu []
   scene/Scene

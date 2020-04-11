@@ -2,7 +2,8 @@
   (:require [quil.core :as q]))
 
 (defn ->projectile
-  [pos & {:keys [vel] :or {vel [0 0]}}]
+  [pos & {:keys [vel]
+          :or   {vel [0 0]}}]
   {:pos pos
    :vel vel
    :w   14

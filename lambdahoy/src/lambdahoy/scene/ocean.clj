@@ -38,8 +38,9 @@
 (defn switch-to-menu
   "If esc was pressed, exit to menu"
   [state e]
-  ;; @TODO: this
-  state)
+  (if (= 27 (:key-code e))
+    (u/change-scene state :menu)
+    state))
 
 (defn key-pressed
   [state e]

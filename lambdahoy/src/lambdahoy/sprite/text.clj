@@ -3,7 +3,8 @@
             [quil.core :as q]))
 
 (defn ->text
-  [content pos & {:keys [size style color] :or {size u/default-text-size style :normal color u/black}}]
+  [content pos & {:keys [size style color]
+                  :or   {size u/default-text-size style :normal color u/black}}]
   {:content content
    :pos     pos
    :size    size
