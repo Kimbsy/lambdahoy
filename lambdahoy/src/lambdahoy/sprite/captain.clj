@@ -1,4 +1,4 @@
-(ns cannonical.sprite.captain
+(ns lambdahoy.sprite.captain
   (:require [quil.core :as q]))
 
 (defn ->captain

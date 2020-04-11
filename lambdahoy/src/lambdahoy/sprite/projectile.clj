@@ -1,4 +1,4 @@
-(ns cannonical.sprite.projectile
+(ns lambdahoy.sprite.projectile
   (:require [quil.core :as q]))
 
 (defn ->projectile

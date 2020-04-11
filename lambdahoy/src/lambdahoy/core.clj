@@ -1,16 +1,18 @@
-(ns cannonical.core
+(ns lambdahoy.core
   (:gen-class)
   (:require [quil.core :as q]
             [quil.middleware :as m]
-            [cannonical.scene.ocean :as ocean]
-            [cannonical.scene :as scene]
-            [cannonical.scene.transition :as transition]))
+            [lambdahoy.scene.ocean :as ocean]
+            [lambdahoy.scene.menu :as menu]
+            [lambdahoy.scene :as scene]
+            [lambdahoy.scene.transition :as transition]))
 
 (defn setup
   []
   (q/frame-rate 60)
-  {:current-scene (ocean/->Ocean)
-   :sprites       {:ocean (ocean/init-sprites)}
+  {:current-scene (menu/->Menu) #_ (ocean/->Ocean)
+   :sprites       {:menu  (menu/init-sprites)
+                   :ocean (ocean/init-sprites)}
    :held-keys     #{}})
 
 (defn update-state
@@ -35,7 +37,7 @@
 (defn -main
   [& args]
   (q/sketch
-   :title "Cannonical: how ships *really* blew up"
+   :title "Lambdahoy: how ships *really* blew up"
    :size [1800 1200]
    :setup setup
    :update update-state

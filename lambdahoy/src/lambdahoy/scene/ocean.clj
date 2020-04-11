@@ -1,20 +1,23 @@
-(ns cannonical.scene.ocean
-  (:require [cannonical.scene :as scene]
-            [cannonical.utils :as u]
-            [cannonical.sprite.ship :as ship]
-            [cannonical.sprite.captain :as captain]
-            [cannonical.sprite.projectile :as projectile]
+(ns lambdahoy.scene.ocean
+  (:require [lambdahoy.scene :as scene]
+            [lambdahoy.utils :as u]
+            [lambdahoy.sprite.ship :as ship]
+            [lambdahoy.sprite.captain :as captain]
+            [lambdahoy.sprite.projectile :as projectile]
             [quil.core :as q]
-            [cannonical.sprite :as sprite]))
+            [lambdahoy.sprite :as sprite]))
 
 (defn init-sprites
   []
-  {:ships [(ship/->ship (/ (q/width) 2)
-                        (/ (q/height) 2)
-                        0
-                        :pc? true
-                        :crew [(captain/->captain 0 110)])]
-   :projectiles []})
+  {:ships       [(ship/->ship (/ (q/width) 2)
+                              (/ (q/height) 2)
+                              0
+                              :pc? true
+                              :crew [(captain/->captain 0 110)])]
+   :projectiles []
+   :boundaries  []
+   :islands     []
+   :waves       []})
 
 (defn update-state
   [state]
@@ -29,7 +32,7 @@
   (u/background u/blue)
   (doall (map ship/draw-self
               (get-in state [:sprites :ocean :ships])))
-  (doall (map sprite/draw-self
+  (doall (map sprite/draw-animated-sprite
               (get-in state [:sprites :ocean :projectiles]))))
 
 (defn switch-to-menu

@@ -1,4 +1,4 @@
-# cannonical
+# lambdahoy
 
 A simple 2D game written in Clojure using Quil.
 
@@ -9,7 +9,7 @@ A simple 2D game written in Clojure using Quil.
 lein uberjar
 
 # Run
-java -jar target/cannonical-0.1.0-SNAPSHOT-standalone.jar
+java -jar target/lambdahoy-0.1.0-SNAPSHOT-standalone.jar
 ```
 
 ## License

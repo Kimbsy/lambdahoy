@@ -1,5 +1,5 @@
-(ns cannonical.scene.transition
-  (:require [cannonical.scene :as scene]))
+(ns lambdahoy.scene.transition
+  (:require [lambdahoy.scene :as scene]))
 
 (defn update-state
   [state]

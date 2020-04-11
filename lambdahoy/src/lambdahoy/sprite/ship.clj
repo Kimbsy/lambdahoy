@@ -1,8 +1,8 @@
-(ns cannonical.sprite.ship
-  (:require [cannonical.utils :as u]
+(ns lambdahoy.sprite.ship
+  (:require [lambdahoy.utils :as u]
             [quil.core :as q]
-            [cannonical.sprite :as sprite]
-            [cannonical.sprite.projectile :as projectile]))
+            [lambdahoy.sprite :as sprite]
+            [lambdahoy.sprite.projectile :as projectile]))
 
 (defn ->ship
   [x y r & {:keys [pc? crew vx vy] :or {pc? false crew [] vx 0 vy 0}}]
@@ -66,7 +66,7 @@
      #(do
         (q/image-mode :center)
         (q/image image 0 0)
-        (doall (map sprite/draw-self crew))))))
+        (doall (map sprite/draw-animated-sprite crew))))))
 
 (defn fire
   [{:keys [pos vel] :as s}]

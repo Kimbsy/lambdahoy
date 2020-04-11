@@ -1,8 +1,13 @@
-(ns cannonical.utils
+(ns lambdahoy.utils
   (:require [quil.core :as q]))
 
 (def blue [0 153 255])
 (def black [0])
+(def white [255])
+
+(def title-text-size 120)
+(def default-text-size 25)
+(def small-text-size 15)
 
 (def background (partial apply q/background))
 (def fill (partial apply q/fill))

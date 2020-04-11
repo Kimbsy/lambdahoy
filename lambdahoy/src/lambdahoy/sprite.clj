@@ -1,4 +1,4 @@
-(ns cannonical.sprite
+(ns lambdahoy.sprite
   (:require [quil.core :as q]))
 
 (defn update-frame-delay
@@ -26,7 +26,12 @@
       update-animation
       update-pos))
 
-(defn draw-self
+(defn draw-static-sprite
+  [{:keys [pos image]}]
+  (let [[x y] pos]
+    (q/image image x y)))
+
+(defn draw-animated-sprite
   [{:keys [pos w h spritesheet current-animation animation-frame] :as s}]
   (let [[x y]     pos
         animation (current-animation (:animations s))

@@ -1,5 +1,5 @@
-(ns cannonical.scene
-  (:require [cannonical.utils :as u]))
+(ns lambdahoy.scene
+  (:require [lambdahoy.utils :as u]))
 
 (defprotocol Scene
   (update-state [s state])
