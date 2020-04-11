@@ -1,6 +1,7 @@
 (ns lambdahoy.sprite.ship
   (:require [lambdahoy.utils :as u]
             [quil.core :as q]
+            [lambdahoy.sound :as sound]
             [lambdahoy.sprite :as sprite]
             [lambdahoy.sprite.projectile :as projectile]))
 
@@ -69,8 +70,10 @@
         (q/image image 0 0)
         (doall (map sprite/draw-animated-sprite crew))))))
 
+;; @TODO: maybe fire should be based on held keys? once we implement cannon firing delays?
 (defn fire
   [{:keys [pos vel] :as s}]
+  (sound/play-sound-effect :cannon)
   (->> s
        u/direction-vector
        u/orthogonals

@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [quil.core :as q]
             [quil.middleware :as m]
+            [lambdahoy.sound :as sound]
             [lambdahoy.scene.ocean :as ocean]
             [lambdahoy.scene.menu :as menu]
             [lambdahoy.scene :as scene]
@@ -10,6 +11,7 @@
 (defn setup
   []
   (q/frame-rate 60)
+  (sound/init)
   {:current-scene (menu/->Menu) #_ (ocean/->Ocean)
    :sprites       {:menu  (menu/init-sprites)
                    :ocean (ocean/init-sprites)}
@@ -33,6 +35,12 @@
   (if (= 27 (q/key-code)) ;; escape
     (set! (.key (quil.applet/current-applet)) (char 0)))
   (scene/key-pressed* state e))
+
+(defn full-exit
+  [state]
+  (sound/stop-music)
+;  (System/exit 0)
+  )
 
 (defn -main
   [& args]

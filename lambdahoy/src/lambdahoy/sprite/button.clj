@@ -5,13 +5,13 @@
 (defn ->button
   [text [x y] on-click & {:keys [w h color text-color held?]
                           :or   {w 200 h 100 color u/grey text-color u/white held? false}}]
-  {:text       text
-   :pos        [(- x (/ w 2))
+  {:pos        [(- x (/ w 2))
                 (- y (/ h 2))]
-   :text-pos   [x y]
    :w          w
    :h          h
    :color      color
+   :text       text
+   :text-pos   [x y]
    :text-color text-color
    :on-click   on-click
    :held?      held?})
