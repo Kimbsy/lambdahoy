@@ -4,7 +4,7 @@
 
 (defn ->button
   [text [x y] on-click & {:keys [w h color text-color held?]
-                          :or   {w 200 h 100 color u/grey text-color u/black held? false}}]
+                          :or   {w 200 h 100 color u/grey text-color u/white held? false}}]
   {:text       text
    :pos        [(- x (/ w 2))
                 (- y (/ h 2))]
@@ -19,14 +19,15 @@
 (defn draw-self
   [{:keys [text pos text-pos w h color text-color held?]}]
   (q/no-stroke)
-  (q/text-align :center)
+  (q/text-align :center :center)
+  (q/text-font (q/create-font u/bold-font u/large-text-size))
   (let [[x y]   pos
         [tx ty] text-pos]
     (if held?
       (do (u/fill color)
           (q/rect (+ 2 x) (+ 2 y) w h)
-          (u/fill text-color)           ;; @TODO: these should be text sprites
-          (q/text text tx ty))
+          (u/fill text-color)
+          (q/text text (+ 2 tx) (+ 2 ty)))
       (do (u/fill (u/darken color))
           (q/rect (+ 2 x) (+ 2 y) w h)
           (u/fill color)

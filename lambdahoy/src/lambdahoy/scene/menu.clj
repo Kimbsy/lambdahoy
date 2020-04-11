@@ -12,8 +12,7 @@
 
 (defn exit-game
   [state]
-  (prn "exit")
-  state)
+  (q/exit))
 
 (defn init-sprites
   []

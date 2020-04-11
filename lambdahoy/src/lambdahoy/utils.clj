@@ -8,8 +8,13 @@
 (def gray grey)
 
 (def title-text-size 120)
+(def large-text-size 50)
 (def default-text-size 25)
 (def small-text-size 15)
+
+(def default-font "Ubuntu Mono")
+(def bold-font "Ubuntu Mono Bold")
+(def italic-font "Ubuntu Mono Italic")
 
 (def background (partial apply q/background))
 (def fill (partial apply q/fill))

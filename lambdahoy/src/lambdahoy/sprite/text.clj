@@ -16,9 +16,9 @@
   (let [[x y] pos]
     (q/text-align :center)
     (q/text-font (q/create-font (case style                              
-                                  :bold "Ubuntu Mono Bold"
-                                  :italic "Ubuntu Mono Italic"
-                                  "Ubuntu Mono")
+                                  :bold u/bold-font
+                                  :italic u/italic-font
+                                  u/default-font)
                                 size))
     (u/fill color)
     (q/text content x y)))

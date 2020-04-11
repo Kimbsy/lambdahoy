@@ -46,4 +46,5 @@
    :key-released scene/key-released*
    :mouse-pressed scene/mouse-pressed*
    :mouse-released scene/mouse-released*
+   :on-close full-exit
    :middleware [m/fun-mode]))
