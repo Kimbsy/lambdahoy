@@ -17,3 +17,8 @@ java -jar target/lambdahoy-0.1.0-SNAPSHOT-standalone.jar
 ## License
 
 Distributed under the Eclipse Public License version 1.0.
+
+assets from:
+- https://0x72.itch.io/pixeldudesmaker
+- https://incompetech.com/music/royalty-free/music.html
+- https://opengameart.org/content/lpc-wooden-ship-tiles

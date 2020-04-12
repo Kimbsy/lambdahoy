@@ -6,9 +6,9 @@
             [lambdahoy.sprite.projectile :as projectile]))
 
 (defn ->ship
-  [x y r & {:keys [pc? crew vx vy]
+  [pos r & {:keys [pc? crew vx vy]
             :or   {pc? false crew [] vx 0 vy 0}}]
-  {:pos   [x y]
+  {:pos   pos
    :vel   [vx vy]
    :r     r
    :rvel  0
@@ -58,7 +58,7 @@
       (assoc :rvel (update-rvel ship held-keys))
       (assoc :speed (update-speed ship held-keys))
       (update :r #(mod (+ % (:rvel ship)) 360))
-      (assoc :crew (map #(sprite/update-self %) crew))))
+      (update :crew #(map sprite/update-self %))))
 
 (defn draw-self
   [{:keys [pos r image crew] :as ship}]
