@@ -13,7 +13,7 @@
    :r     r
    :rvel  0
    :speed (u/magnitude [vx vy])
-   :image (q/load-image "images/ship.png")
+   :image (q/load-image "images/ship-small.png")
    :pc?   pc?
    :crew  crew})
 

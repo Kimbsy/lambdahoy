@@ -1,7 +1,7 @@
 * Things to do:
 
 ** ship
-*** TODO redesign, needs to be much smaller
+*** DONE redesign, needs to be much smaller
 *** TODO add health bar
 **** where?
 *** cannons
