@@ -9,10 +9,13 @@
 
 (defn init-sprites
   []
-  {:ships       [(ship/->ship [(/ (q/width) 2) (/ (q/height) 2)]
-                              0
+  {:ships       [(ship/->ship [(* (q/width) 1/2) (* (q/height) 1/2)]
+                              :r 0
                               :pc? true
-                              :crew [(captain/->captain [0 15])])]
+                              :crew [(captain/->captain [0 15])])
+                 (ship/->ship [(* (q/width) 1/4) (* (q/height) 1/4)]
+                              :r 90
+                              :vel [5 0])]
    :projectiles []
    :boundaries  []
    :islands     []

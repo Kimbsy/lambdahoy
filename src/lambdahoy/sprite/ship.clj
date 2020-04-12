@@ -6,16 +6,23 @@
             [lambdahoy.sprite.projectile :as projectile]))
 
 (defn ->ship
-  [pos r & {:keys [pc? crew vx vy]
-            :or   {pc? false crew [] vx 0 vy 0}}]
+  [pos & {:keys [r vel rvel pc? crew]
+          :or   {r    0
+                 vel  [0 0]
+                 rvel 0
+                 pc?  false
+                 crew []}}]
   {:pos   pos
-   :vel   [vx vy]
+   :vel   vel
    :r     r
-   :rvel  0
-   :speed (u/magnitude [vx vy])
+   :rvel  rvel
+   :speed (u/magnitude vel)
    :image (q/load-image "images/ship-small.png")
    :pc?   pc?
-   :crew  crew})
+   :crew  crew
+
+   :npc-command {:direction :nil
+                 :duration  50}})
 
 (defn rvel-drift
   [rvel]
@@ -50,13 +57,40 @@
         :else
         (max (- speed 0.05) 0)))
 
+(defn update-if-pc-ship
+  [ship held-keys]
+  (if (:pc? ship)
+    (-> ship
+        (assoc :rvel (update-rvel ship held-keys))
+        (assoc :speed (update-speed ship held-keys)))
+    ship))
+
+(defn ->npc-command
+  []
+  {:direction (rand-nth [:left :right nil])
+   :duration (+ 10 (rand-int 50))})
+
+(defn update-command
+  [command]
+  (if (= 0 (:duration command))
+    (->npc-command)
+    (update command :duration dec)))
+
+(defn update-if-npc-ship
+  [{:keys [npc-command] :as ship}]
+  (if-not (:pc? ship)
+    (-> ship
+        (update :npc-command update-command)
+        (assoc :rvel (update-rvel ship #{(:direction npc-command)})))
+    ship))
+
 (defn update-self
   [{:keys [held-keys]} {:keys [pos vel r speed crew] :as ship}]
   (-> ship
+      (update-if-pc-ship held-keys)
+      update-if-npc-ship
       (assoc :vel (u/velocity-vector ship))
       (assoc :pos (map + pos vel))
-      (assoc :rvel (update-rvel ship held-keys))
-      (assoc :speed (update-speed ship held-keys))
       (update :r #(mod (+ % (:rvel ship)) 360))
       (update :crew #(map sprite/update-self %))))
 
