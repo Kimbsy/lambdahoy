@@ -48,16 +48,21 @@
 
 (defn direction-vector
   "Calculate the unit direction vector based on the rotation angle."
-  [{:keys [r]}]
+  [r]
   [(q/sin (q/radians r))
    (- (q/cos (q/radians r)))])
+
+(defn rotation-angle
+  "Calculate the rotation angle of a vector."
+  [[x y]]
+  (q/degrees (q/atan2 x y)))
 
 (defn velocity-vector
   "Calculate the velocity vector based on the direction vector and
   speed."
-  [{:keys [speed] :as s}]
+  [{:keys [speed r] :as s}]
   (map (partial * speed)
-       (direction-vector s)))
+       (direction-vector r)))
 
 (defn scale-by
   "Generates a function which will scale a vector by the given factor."

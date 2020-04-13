@@ -1,18 +1,20 @@
 (ns lambdahoy.scene.ocean
   (:require [lambdahoy.scene :as scene]
-            [lambdahoy.utils :as u]
-            [lambdahoy.sprite.ship :as ship]
+            [lambdahoy.sprite :as sprite]
+            [lambdahoy.sprite.cannon :as cannon]
             [lambdahoy.sprite.captain :as captain]
-            [lambdahoy.sprite.projectile :as projectile]
-            [quil.core :as q]
-            [lambdahoy.sprite :as sprite]))
+            [lambdahoy.sprite.ship :as ship]
+            [lambdahoy.utils :as u]
+            [quil.core :as q]))
 
 (defn init-sprites
   []
   {:ships       [(ship/->ship [(* (q/width) 1/2) (* (q/height) 1/2)]
                               :r 0
                               :pc? true
-                              :crew [(captain/->captain [0 15])])
+                              :crew [(captain/->captain [0 15])]
+                              :cannons [(cannon/->cannon [60 0])
+                                        (cannon/->cannon [-60 0])])
                  (ship/->ship [(* (q/width) 1/4) (* (q/height) 1/4)]
                               :r 90
                               :vel [5 0])]

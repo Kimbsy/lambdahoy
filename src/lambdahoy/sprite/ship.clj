@@ -1,25 +1,28 @@
 (ns lambdahoy.sprite.ship
-  (:require [lambdahoy.utils :as u]
-            [quil.core :as q]
-            [lambdahoy.sound :as sound]
+  (:require [lambdahoy.sound :as sound]
             [lambdahoy.sprite :as sprite]
-            [lambdahoy.sprite.projectile :as projectile]))
+            [lambdahoy.sprite.cannon :as cannon]
+            [lambdahoy.sprite.projectile :as projectile]
+            [lambdahoy.utils :as u]
+            [quil.core :as q]))
 
 (defn ->ship
-  [pos & {:keys [r vel rvel pc? crew]
-          :or   {r    0
-                 vel  [0 0]
-                 rvel 0
-                 pc?  false
-                 crew []}}]
-  {:pos   pos
-   :vel   vel
-   :r     r
-   :rvel  rvel
-   :speed (u/magnitude vel)
-   :image (q/load-image "images/ship-small.png")
-   :pc?   pc?
-   :crew  crew
+  [pos & {:keys [r vel rvel pc? crew cannons]
+          :or   {r       0
+                 vel     [0 0]
+                 rvel    0
+                 pc?     false
+                 crew    []
+                 cannons []}}]
+  {:pos     pos
+   :vel     vel
+   :r       r
+   :rvel    rvel
+   :speed   (u/magnitude vel)
+   :image   (q/load-image "images/ship-small.png")
+   :pc?     pc?
+   :crew    crew
+   :cannons cannons
 
    :npc-command {:direction :nil
                  :duration  50}})
@@ -95,25 +98,61 @@
       (update :crew #(map sprite/update-self %))))
 
 (defn draw-self
-  [{:keys [pos r image crew] :as ship}]
+  [{:keys [pos r image crew cannons] :as ship}]
   (let [[x y] pos]
     (u/wrap-trans-rot
      x y r
      #(do
         (q/image-mode :center)
         (q/image image 0 0)
-        (doall (map sprite/draw-animated-sprite crew))))))
+        (doall (map sprite/draw-animated-sprite crew))
+        (doall (map cannon/draw-self cannons))))))
 
-;; @TODO: maybe fire should be based on held keys? once we implement cannon firing delays?
+(defn cannon-rotational-velocity
+  "Determine the current velocity vector of a cannon based on the
+  rotational velocity of the ship and the position of the cannon in
+  relation to the center of rotation."
+  [cannon rvel ship-rotation]
+  (let [r           (:pos cannon)                         ; radius vector
+        r-length    (u/magnitude r)                       ; length of radius vector
+        c           (* 2 Math/PI r-length)                ; circumference
+        w           (/ rvel 360)                          ; angular velocity (rotations per frame)
+        speed       (* w c)                               ; linear speed of cannon
+        cannon-direction (u/direction-vector (+ ship-rotation (u/rotation-angle (:pos cannon))))
+        orthogonals (map u/unit-vector [cannon-direction (map (partial * -1) cannon-direction)])
+        direction   (cond
+                      (< 0 rvel)   (last orthogonals)  ; rotating clockwise
+                      (< rvel 0)   (first orthogonals) ; rotating anticlockwise
+                      (zero? rvel) [0 0])              ; not rotating
+        velocity    (map (partial * speed) direction)]
+    velocity))
+
+;; @TODO: maybe firing should be based on held keys? once we implement cannon firing delays?
 (defn fire
-  [{:keys [pos vel] :as s}]
+  "Create a vector of projectiles as a result of firing all cannons on a
+  ship."
+  [{:keys [pos vel r rvel cannons] :as s}]
   (sound/play-sound-effect :cannon)
-  (->> s
-       u/direction-vector
-       u/orthogonals
-       (map (u/scale-by 10))
-       (map (partial map + vel))
-       (map #(projectile/->projectile pos :vel %))))
+  (let [cannon-rvels (map #(cannon-rotational-velocity % rvel r) cannons)
+        direction    (u/direction-vector r)
+        orthogonals  (u/orthogonals direction)]
+    (->> cannons
+         ;; firing direction
+         (map (fn [{[x y] :pos}] (if (pos? x)
+                                   (last (u/orthogonals direction))
+                                   (first (u/orthogonals direction)))))
+
+         ;; default projectile speed
+         (map (u/scale-by 10))
+
+         ;; add ship velocity
+         (map (partial map + vel))
+
+         ;; account for cannon rotational velocity
+         (map (partial map +) cannon-rvels)
+
+         ;; create projectile
+         (map #(projectile/->projectile pos :vel %)))))
 
 (defn key-pressed
   [state e]
@@ -121,5 +160,6 @@
     (let [pc-ships (filter :pc? (get-in state [:sprites :ocean :ships]))]
       (update-in state
                  [:sprites :ocean :projectiles]
-                 #(take 100 (concat (apply concat (map fire pc-ships)) %))))
+                 #(take 100 (concat (apply concat (map fire pc-ships))
+                                    %))))
     state))

@@ -4,14 +4,20 @@
 *** DONE redesign, needs to be much smaller
 *** TODO add health bar
 **** where?
+**** should it rotate with the ship or be fixed orientation?
 *** cannons
-**** TODO draw them
+**** DONE add some component of rotational velocity to cannonballs?
+**** DONE draw them
+**** TODO draw them better, animated spritesheets pls
 **** TODO give them a cooldown, show a bar
 **** TODO be able to add more cannons
+**** TODO be able to upgrade?
 ** enemy ships
-*** TODO draw them
-*** TODO let them roam about on their own
-*** TODO have them fire at the player's ship
+*** DONE draw them
+*** DONE let them roam about on their own
+*** TODO have them fire randomly
+*** TODO develop more sophisticated movement AI
+*** TODO develop targeting AI
 ** cannonballs
 *** TODO detect ball/ship collisions
 *** TODO add explosions on hit
