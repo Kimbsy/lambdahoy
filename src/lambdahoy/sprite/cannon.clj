@@ -9,5 +9,6 @@
 ;; temp draw-self, should make a spritesheet
 (defn draw-self
   [{[x y] :pos}]
+  (q/no-stroke)
   (u/fill u/black)
   (q/rect x y 30 10))

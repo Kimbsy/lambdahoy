@@ -3,6 +3,9 @@
 
 (defonce ^:dynamic *main-music-thread* (atom nil))
 
+;; @TODO: make sound a toggleable setting
+(def ^:dynamic *sound-enabled* true)
+
 (def tracks {:default "music/Captain Scurvy.mp3"})
 
 (def sound-effects {:cannon ["sound-effects/cannon-fire-1.mp3"
@@ -20,21 +23,25 @@
 
 (defn loop-track
   [track-key]
-  (reset! *main-music-thread* (Thread. #(while true (doto (->player (track-key tracks))
-                                                      (.play)
-                                                      (.close)))))
-  (.start @*main-music-thread*))
+  (when *sound-enabled*
+    (reset! *main-music-thread* (Thread. #(while true (doto (->player (track-key tracks))
+                                                        (.play)
+                                                        (.close)))))
+    (.start @*main-music-thread*)))
 
 (defn stop-music
   []
-  (.stop @*main-music-thread*))
+  (when *sound-enabled*
+    (.stop @*main-music-thread*)))
 
 (defn play-sound-effect
   [sound-effect-key]
-  (.start (Thread. #(doto (->player (rand-nth (sound-effect-key sound-effects)))
-                      (.play)
-                      (.close)))))
+  (when *sound-enabled*
+    (.start (Thread. #(doto (->player (rand-nth (sound-effect-key sound-effects)))
+                        (.play)
+                        (.close))))))
 
 (defn init
   []
-  (loop-track :default))
+  (when *sound-enabled*
+    (loop-track :default)))

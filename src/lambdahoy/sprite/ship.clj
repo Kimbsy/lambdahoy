@@ -6,11 +6,26 @@
             [lambdahoy.utils :as u]
             [quil.core :as q]))
 
+(def ^:dynamic *debug-mode* (atom false))
+
+(def ship-height 318)
+(def ship-width 159)
+
+(def bounding-offsets
+  [[0 -160]
+   [79 -67]
+   [79 90]
+   [52 160]
+   [-55 160]
+   [-80 90]
+   [-80 -67]])
+
 (defn ->ship
-  [pos & {:keys [r vel rvel pc? crew cannons]
+  [pos & {:keys [r vel rvel health pc? crew cannons]
           :or   {r       0
                  vel     [0 0]
                  rvel    0
+                 health  100
                  pc?     false
                  crew    []
                  cannons []}}]
@@ -19,6 +34,7 @@
    :r       r
    :rvel    rvel
    :speed   (u/magnitude vel)
+   :health  health
    :image   (q/load-image "images/ship-small.png")
    :pc?     pc?
    :crew    crew
@@ -26,6 +42,28 @@
 
    :npc-command {:direction :nil
                  :duration  50}})
+
+(defn bounding-poly
+  "Calculate the collision boundary polygon for a ship."
+  [{:keys [pos r]}]
+  {:points (->> bounding-offsets
+                (map #(u/rotate-vector % r))
+                (mapv (partial mapv + pos)))})
+
+(defn possibly-hit?
+  "Predicate to determine if a pos is within a square the size of the
+  ship's length centered on the ship's pos."
+  [{[sx sy] :pos} [x y]]
+  (let [half-height (/ ship-height 2)]
+    (and (<= (- sx half-height) x (+ sx half-height))
+         (<= (- sy half-height) y (+ sy half-height)))))
+
+(defn guaranteed-hit?
+  "Predicate to check it a pos is within a 65x65 square centered on the
+  ship's pos."
+  [{[sx sy] :pos} [x y]]
+  (and (<= (- sx 32.5) x (+ sx 32.5))
+       (<= (- sy 32.5) y (+ sy 32.5))))
 
 (defn rvel-drift
   [rvel]
@@ -106,7 +144,8 @@
         (q/image-mode :center)
         (q/image image 0 0)
         (doall (map sprite/draw-animated-sprite crew))
-        (doall (map cannon/draw-self cannons))))))
+        (doall (map cannon/draw-self cannons))))
+    (when @*debug-mode* (u/draw-bounding-poly (bounding-poly ship)))))
 
 (defn cannon-rotational-velocity
   "Determine the current velocity vector of a cannon based on the
@@ -160,6 +199,6 @@
     (let [pc-ships (filter :pc? (get-in state [:sprites :ocean :ships]))]
       (update-in state
                  [:sprites :ocean :projectiles]
-                 #(take 100 (concat (apply concat (map fire pc-ships))
-                                    %))))
+                 #(concat (apply concat (map fire pc-ships))
+                          %)))
     state))

@@ -1,13 +1,18 @@
 (ns lambdahoy.sprite.projectile
-  (:require [quil.core :as q]))
+  (:require [lambdahoy.sprite :as sprite]
+            [quil.core :as q]))
 
 (defn ->projectile
-  [pos & {:keys [vel]
-          :or   {vel [0 0]}}]
-  {:pos pos
-   :vel vel
-   :w   14
-   :h   14
+  [pos & {:keys [vel damage duration]
+          :or   {vel      [0 0]
+                 damage   10
+                 duration 50}}]
+  {:pos      pos
+   :vel      vel
+   :w        14
+   :h        14
+   :damage   damage
+   :duration duration
 
    :spritesheet       (q/load-image "images/cannonball.png")
    :current-animation :spin
@@ -19,3 +24,10 @@
                        :spin {:frames      4
                               :y-offset    0
                               :frame-delay 5}}})
+
+(defn update-self
+  [{:keys [duration] :as p}]
+  (when (< 0 duration)
+    (-> p
+        (update :duration dec)
+        sprite/update-self)))
