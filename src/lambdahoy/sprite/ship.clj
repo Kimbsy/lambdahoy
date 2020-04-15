@@ -91,7 +91,7 @@
 (defn update-speed
   [{:keys [speed]} held-keys]
   (cond (held-keys :up)
-        (min (+ speed 0.1) 5)
+        (min (+ speed 0.1) 10)
 
         (held-keys :down)
         (max (- speed 0.1) 0)
@@ -137,19 +137,17 @@
       (update :crew #(map sprite/update-self %))))
 
 (defn draw-self
-  [{:keys [pos r image health crew cannons] :as ship}]
-  (let [[x y] pos]
-    (u/wrap-trans-rot
-     x y r
-     #(do
-        (q/image-mode :center)
-        (q/image image 0 0)
-        (doall (map sprite/draw-animated-sprite crew))
-        (doall (map cannon/draw-self cannons))))
-    (u/wrap-trans-rot
-     x y 0
-     #(bar/draw-self health))
-    (when @*debug-mode* (u/draw-bounding-poly (bounding-poly ship)))))
+  [{:keys [pos r image health pc? crew cannons indicator] :as ship}]
+  (u/wrap-trans-rot
+   pos r
+   #(do
+      (q/image-mode :center)
+      (q/image image 0 0)
+      (doall (map sprite/draw-animated-sprite crew))
+      (doall (map cannon/draw-self cannons))))
+  (u/wrap-trans-rot
+   pos 0
+   #(bar/draw-self health)))
 
 (defn cannon-rotational-velocity
   "Determine the current velocity vector of a cannon based on the

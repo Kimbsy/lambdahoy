@@ -1,7 +1,6 @@
 (ns lambdahoy.scene.ocean
   (:require [lambdahoy.scene :as scene]
             [lambdahoy.sprite :as sprite]
-            [lambdahoy.sprite.bar :as bar]
             [lambdahoy.sprite.cannon :as cannon]
             [lambdahoy.sprite.captain :as captain]
             [lambdahoy.sprite.projectile :as projectile]
@@ -9,34 +8,30 @@
             [lambdahoy.utils :as u]
             [quil.core :as q]))
 
+(defn random-npc-ship
+  []
+  (ship/->ship [(rand-int (* (q/width) 1.5)) (rand-int (* (q/height) 1.5))]
+               :r (rand-int 360)
+               :vel [0 -3]
+               :cannons [(cannon/->cannon [60 0])
+                         (cannon/->cannon [-60 0])]))
+
 (defn init-sprites
   []
-  {:ships [;; player ship
-           (ship/->ship [(* (q/width) 1/2) (* (q/height) 1/2)]
-                        :r 0
-                        :pc? true
-                        :crew [(captain/->captain [0 15])]
-                        :cannons [(cannon/->cannon [60 45])
-                                  (cannon/->cannon [60 0])
-                                  (cannon/->cannon [60 -45])
-                                  (cannon/->cannon [-60 45])
-                                  (cannon/->cannon [-60 0])
-                                  (cannon/->cannon [-60 -45])])
+  {:ships (concat [;; player ship
+                   (ship/->ship [(* (q/width) 1/2) (* (q/height) 1/2)]
+                                :r 0
+                                :pc? true
+                                :crew [(captain/->captain [0 15])]
+                                :cannons [(cannon/->cannon [60 45])
+                                          (cannon/->cannon [60 0])
+                                          (cannon/->cannon [60 -45])
+                                          (cannon/->cannon [-60 45])
+                                          (cannon/->cannon [-60 0])
+                                          (cannon/->cannon [-60 -45])])]
+                  (take 4 (repeatedly random-npc-ship)))
 
-           ;; npc ships
-           (ship/->ship [(* (q/width) 1/3) (* (q/height) 1/2)]
-                        :r 270
-                        :vel [0 -2]
-                        :cannons [(cannon/->cannon [60 0])
-                                  (cannon/->cannon [-60 0])])
-           (ship/->ship [(* (q/width) 2/3) (* (q/height) 1/2)]
-                        :r 90
-                        :vel [0 2]
-                        :cannons [(cannon/->cannon [60 0])
-                                  (cannon/->cannon [-60 0])])]
    :projectiles []
-   :boundaries  []
-   :islands     []
    :waves       []})
 
 (defn ship-hit-by-projectile?
@@ -77,8 +72,8 @@
               (-> acc
                   (update :ships (fn [ships]
                                    (conj ships (update-in ship [:health :current] #(- % damage)))))
-                  (assoc :projectiles (concat missing-projectiles
-                                              (map #(assoc % :duration 0) hitting-projectiles))))))
+                  (assoc :projectiles (into missing-projectiles
+                                            (map #(assoc % :duration 0) hitting-projectiles))))))
           {:ships       []
            :projectiles initial-projectiles}
           initial-ships))
@@ -103,26 +98,52 @@
                        (remove (fn [s] (<= (:current (:health s)) 0))))) ;; @TODO: we'll want a better way of sinking ships in the future
       (update-in [:sprites :ocean :projectiles]
                  #(->> %
-                      (mapv projectile/update-self)
+                      (map projectile/update-self)
                       (remove nil?))) ; clean up projectiles that have died
       ship-projectile-collision))
+
+(defn draw-indicator
+  "Draw a tirangle pointing at any off screen ships."
+  [{npc-pos :pos} {pc-pos :pos}]
+  (let [[npc-x npc-y] npc-pos
+        [pc-x pc-y]   pc-pos]
+    (when (or (< (* (q/width) 5/12) (q/abs (- npc-x pc-x)))
+              (< (* (q/height) 5/12) (q/abs (- npc-y pc-y))))
+      (let [translation [(u/bounded (- npc-x pc-x)
+                                    (+ (* (q/width) 1/2) -10)
+                                    (+ (- (* (q/width) 1/2)) 10))
+                         (u/bounded (- npc-y pc-y)
+                                    (+ (* (q/height) 1/2) -10)
+                                    (+ (- (* (q/height) 1/2)) 10))]]
+        (u/wrap-trans-rot
+         translation
+          ;; @TODO is something wrong with our rotation-angle
+          ;; function? why do we need to negate the y? are our
+          ;; ratational velocity calculations off?
+         (u/rotation-angle [(first translation) (- (second translation))])
+         #(do (u/fill u/red)
+              (u/stroke u/black)
+              (q/triangle 0 -10
+                          -10 10
+                          10 10)))))))
 
 (defn draw-state
   [state]
   (u/background u/blue)
-  (let [pc-ship (first (filter :pc? (get-in state [:sprites :ocean :ships])))
-        [x y]   (:pos pc-ship)]
+  (let [pc-ship (first (filter :pc? (get-in state [:sprites :ocean :ships])))]
     (u/wrap-trans-rot
-     (* (q/width) 1/2) (* (q/height) 1/2) 0
+     [(* (q/width) 1/2) (* (q/height) 1/2)] 0
      (fn []
        (u/wrap-trans-rot
-        (- x) (- y) 0
+        (map - (:pos pc-ship)) 0
         (fn []
           (doall (map ship/draw-self
                       (remove :pc? (get-in state [:sprites :ocean :ships]))))
           (doall (map sprite/draw-animated-sprite
                       (get-in state [:sprites :ocean :projectiles])))
-          (ship/draw-self pc-ship)))))))
+          (ship/draw-self pc-ship)))
+       (doall (map #(draw-indicator % pc-ship)
+                   (remove :pc? (get-in state [:sprites :ocean :ships]))))))))
 
 (defn switch-to-menu
   "If esc was pressed, exit to menu"

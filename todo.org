@@ -6,14 +6,14 @@
 ** ship
 *** DONE redesign, needs to be much smaller
 *** DONE add health bar
-*** TODO markers indicating off screen
+*** DONE markers indicating off screen ships
 *** TODO sinking animation
 *** cannons
 **** DONE add some component of rotational velocity to cannonballs?
 **** DONE draw them
 **** DONE spawn projectiles outside of ship collision bounds
-**** TODO draw them better, animated spritesheets pls
 **** TODO give them a cooldown, show a bar
+**** TODO draw them better, animated spritesheets pls
 **** TODO be able to add more cannons
 **** TODO be able to upgrade?
 ** enemy ships

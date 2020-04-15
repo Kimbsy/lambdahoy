@@ -22,6 +22,11 @@
 (def fill (partial apply q/fill))
 (def stroke (partial apply q/stroke))
 
+(defn bounded
+  "Bounds a number to a maximum and minimum value."
+  [n maximum minimum]
+  (max minimum (min maximum n)))
+
 (defn zero-vector?
   "Predicate to check if a vector has length 0."
   [v]
@@ -84,7 +89,7 @@
   "Perform a translation, a rotation, invoke the supplied
   function (probably drawing a sprite, then reset the transform matrix
   to the identity."
-  [x y r f]
+  [[x y] r f]
   (q/push-matrix)
   (q/translate x y)
   (q/rotate (q/radians r))
