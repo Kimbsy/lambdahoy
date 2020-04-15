@@ -18,10 +18,6 @@
    :bg-color    bg-color
    :fg-color    fg-color})
 
-(defn draw-bar
-  [x y w h current max-value bg-color fg-color]
-  )
-
 (defn draw-self
   [{:keys [pos w h current max-value bg-color fg-color]}]
   (let [[x y]     pos
