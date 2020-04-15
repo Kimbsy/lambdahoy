@@ -1,6 +1,7 @@
 (ns lambdahoy.sprite.ship
   (:require [lambdahoy.sound :as sound]
             [lambdahoy.sprite :as sprite]
+            [lambdahoy.sprite.bar :as bar]
             [lambdahoy.sprite.cannon :as cannon]
             [lambdahoy.sprite.projectile :as projectile]
             [lambdahoy.utils :as u]
@@ -25,7 +26,7 @@
           :or   {r       0
                  vel     [0 0]
                  rvel    0
-                 health  100
+                 health  (bar/->bar [0 100] 50 5)
                  pc?     false
                  crew    []
                  cannons []}}]
@@ -136,7 +137,7 @@
       (update :crew #(map sprite/update-self %))))
 
 (defn draw-self
-  [{:keys [pos r image crew cannons] :as ship}]
+  [{:keys [pos r image health crew cannons] :as ship}]
   (let [[x y] pos]
     (u/wrap-trans-rot
      x y r
@@ -145,6 +146,9 @@
         (q/image image 0 0)
         (doall (map sprite/draw-animated-sprite crew))
         (doall (map cannon/draw-self cannons))))
+    (u/wrap-trans-rot
+     x y 0
+     #(bar/draw-self health))
     (when @*debug-mode* (u/draw-bounding-poly (bounding-poly ship)))))
 
 (defn cannon-rotational-velocity

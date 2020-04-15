@@ -5,9 +5,10 @@
 *** TODO make debug mode toggleable
 ** ship
 *** DONE redesign, needs to be much smaller
-*** TODO add health bar
+*** DONE add health bar
 **** where?
 **** should it rotate with the ship or be fixed orientation?
+*** TODO sinking animation
 *** cannons
 **** DONE add some component of rotational velocity to cannonballs?
 **** DONE draw them

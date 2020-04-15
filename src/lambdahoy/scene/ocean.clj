@@ -1,6 +1,7 @@
 (ns lambdahoy.scene.ocean
   (:require [lambdahoy.scene :as scene]
             [lambdahoy.sprite :as sprite]
+            [lambdahoy.sprite.bar :as bar]
             [lambdahoy.sprite.cannon :as cannon]
             [lambdahoy.sprite.captain :as captain]
             [lambdahoy.sprite.projectile :as projectile]
@@ -26,13 +27,11 @@
            (ship/->ship [(* (q/width) 1/3) (* (q/height) 1/2)]
                         :r 90
                         :vel [0 0]
-                        :health 100
                         :cannons [(cannon/->cannon [60 0])
                                   (cannon/->cannon [-60 0])])
            (ship/->ship [(* (q/width) 2/3) (* (q/height) 1/2)]
                         :r 90
                         :vel [0 0]
-                        :health 100
                         :cannons [(cannon/->cannon [60 0])
                                   (cannon/->cannon [-60 0])])]
    :projectiles []
@@ -77,7 +76,7 @@
                               (reduce +))]
               (-> acc
                   (update :ships (fn [ships]
-                                   (conj ships (update ship :health #(- % damage)))))
+                                   (conj ships (update-in ship [:health :current] #(- % damage)))))
                   (assoc :projectiles (concat missing-projectiles
                                               (map #(assoc % :duration 0) hitting-projectiles))))))
           {:ships       []
@@ -101,7 +100,7 @@
       (update-in [:sprites :ocean :ships]
                  #(->> %
                        (map (partial ship/update-self state))
-                       (remove (fn [s] (<= (:health s) 0))))) ;; @TODO: we'll want a better way of sinking ships in the future
+                       (remove (fn [s] (<= (:current (:health s)) 0))))) ;; @TODO: we'll want a better way of sinking ships in the future
       (update-in [:sprites :ocean :projectiles]
                  #(->> %
                       (mapv projectile/update-self)
