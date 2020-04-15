@@ -64,7 +64,7 @@
                                    (:projectiles acc))
 
                   hitting-projectiles (groups true)
-                  missing-projectiles (concat (groups false) (groups nil))
+                  missing-projectiles (into (groups false) (groups nil))
 
                   damage (->> hitting-projectiles
                               (map :damage)
