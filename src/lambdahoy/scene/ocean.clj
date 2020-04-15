@@ -8,28 +8,34 @@
             [lambdahoy.utils :as u]
             [quil.core :as q]))
 
-(defn random-test-projectiles
-  []
-  (take 40 (repeatedly #(projectile/->projectile [(rand-int (q/width)) (rand-int (q/height))] :duration 100000))))
-
 (defn init-sprites
   []
-  {:ships [ ;; player ship
+  {:ships [;; player ship
            (ship/->ship [(* (q/width) 3/4) (* (q/height) 3/4)]
                         :r 0
                         :pc? true
                         :crew [(captain/->captain [0 15])]
+                        :cannons [(cannon/->cannon [60 45])
+                                  (cannon/->cannon [60 0])
+                                  (cannon/->cannon [60 -45])
+                                  (cannon/->cannon [-60 45])
+                                  (cannon/->cannon [-60 0])
+                                  (cannon/->cannon [-60 -45])])
+
+           ;; npc ships
+           (ship/->ship [(* (q/width) 1/3) (* (q/height) 1/2)]
+                        :r 90
+                        :vel [0 0]
+                        :health 100
                         :cannons [(cannon/->cannon [60 0])
                                   (cannon/->cannon [-60 0])])
-
-           ;; npc ship
-           (ship/->ship [(* (q/width) 1/2) (* (q/height) 1/2)]
+           (ship/->ship [(* (q/width) 2/3) (* (q/height) 1/2)]
                         :r 90
-                        :vel [5 0]
-                        :health 50
+                        :vel [0 0]
+                        :health 100
                         :cannons [(cannon/->cannon [60 0])
                                   (cannon/->cannon [-60 0])])]
-   :projectiles (random-test-projectiles)
+   :projectiles []
    :boundaries  []
    :islands     []
    :waves       []})

@@ -1,6 +1,5 @@
 (ns lambdahoy.utils
-  (:require [quil.core :as q]
-            [lambdahoy.utils :as u]))
+  (:require [quil.core :as q]))
 
 (def blue [0 153 255])
 (def black [0])
@@ -51,8 +50,8 @@
 (defn orthogonals
   "Calculate the two orthogonal vectors to a given 2D vector.
 
-  Returns [90-degrees-left-vector 
-           90-degrees-right-vector]"
+  Y axis is inverted so this returns [90-degrees-right-vector
+                                      90-degrees-left-vector]"
   [[x y]]
   [[(- y) x]
    [y (- x)]])
@@ -180,11 +179,11 @@
 (defn draw-bounding-poly
   [poly]
   (q/no-fill)
-  (u/stroke u/black)
+  (stroke black)
   (q/stroke-weight 4)
   (doseq [[[x1 y1] [x2 y2]] (poly-lines poly)]
     (q/line x1 y1 x2 y2))
-  (u/stroke u/red)
+  (stroke red)
   (q/stroke-weight 3)
   (doseq [[[x1 y1] [x2 y2]] (poly-lines poly)]
     (q/line x1 y1 x2 y2))

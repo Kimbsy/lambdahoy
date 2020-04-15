@@ -53,10 +53,9 @@
 
 (defn mouse-pressed
   [state e]
-  (-> state
-      (update-in [:sprites :menu :buttons]
-                 button/mouse-pressed
-                 e)))
+  (update-in state [:sprites :menu :buttons]
+             button/mouse-pressed
+             e))
 
 (defn mouse-released
   [state e]

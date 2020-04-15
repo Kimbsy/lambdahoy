@@ -27,7 +27,7 @@
 
 (defn update-self
   [{:keys [duration] :as p}]
-  (when (< 0 duration)
+  (when (pos? duration)
     (-> p
         (update :duration dec)
         sprite/update-self)))

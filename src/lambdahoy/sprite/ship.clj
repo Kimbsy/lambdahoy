@@ -67,9 +67,9 @@
 
 (defn rvel-drift
   [rvel]
-  (cond (< rvel 0) 1
-        (> rvel 0) -1
-        :else      0))
+  (cond (neg? rvel) 1
+        (pos? rvel) -1
+        :else       0))
 
 (defn update-rvel
   [{:keys [rvel]} held-keys]
@@ -113,7 +113,7 @@
 
 (defn update-command
   [command]
-  (if (= 0 (:duration command))
+  (if (zero? (:duration command))
     (->npc-command)
     (update command :duration dec)))
 
@@ -152,46 +152,58 @@
   rotational velocity of the ship and the position of the cannon in
   relation to the center of rotation."
   [cannon rvel ship-rotation]
-  (let [r           (:pos cannon)                         ; radius vector
-        r-length    (u/magnitude r)                       ; length of radius vector
-        c           (* 2 Math/PI r-length)                ; circumference
-        w           (/ rvel 360)                          ; angular velocity (rotations per frame)
-        speed       (* w c)                               ; linear speed of cannon
+  (let [r                (:pos cannon)          ; radius vector
+        r-length         (u/magnitude r)        ; length of radius vector
+        c                (* 2 Math/PI r-length) ; circumference
+        w                (/ rvel 360)           ; angular velocity (rotations per frame)
+        speed            (* w c)                ; linear speed of cannon
         cannon-direction (u/direction-vector (+ ship-rotation (u/rotation-angle (:pos cannon))))
-        orthogonals (map u/unit-vector [cannon-direction (map (partial * -1) cannon-direction)])
-        direction   (cond
-                      (< 0 rvel)   (last orthogonals)  ; rotating clockwise
-                      (< rvel 0)   (first orthogonals) ; rotating anticlockwise
-                      (zero? rvel) [0 0])              ; not rotating
-        velocity    (map (partial * speed) direction)]
+        orthogonals      (map u/unit-vector [cannon-direction (map (partial * -1) cannon-direction)])
+        direction        (cond
+                           (pos? rvel)  (last orthogonals)  ; rotating clockwise
+                           (neg? rvel)  (first orthogonals) ; rotating anticlockwise
+                           (zero? rvel) [0 0])              ; not rotating
+        velocity         (map (partial * speed) direction)]
     velocity))
+
+(defn firing-velocity
+  "Determine the starting velocity of a projectile."
+  [cannon {:keys [vel r rvel]}]
+  (let [direction   (u/direction-vector r)
+        orthogonals (u/orthogonals direction)
+        rot-vel     (cannon-rotational-velocity cannon rvel r)]
+    (->> cannon
+         ;; firing direction
+         ((fn [{[x y] :pos}] (if (pos? x)
+                               (first orthogonals)
+                               (last orthogonals))))
+
+         ;; default projectile speed
+         ((u/scale-by 20))
+
+         ;; add ship velocity
+         (map + vel)
+
+         ;; account for cannon rotational velocity
+         (map + rot-vel))))
+
+(defn firing-position
+  "Determine the starting position of a projectile."
+  [cannon ship]
+  (let [scaled-offset  (map * [1.5 1] (:pos cannon))
+        rotated-offset (u/rotate-vector scaled-offset (:r ship))]
+    (map + (:pos ship) rotated-offset)))
 
 ;; @TODO: maybe firing should be based on held keys? once we implement cannon firing delays?
 (defn fire
   "Create a vector of projectiles as a result of firing all cannons on a
   ship."
-  [{:keys [pos vel r rvel cannons] :as s}]
+  [{:keys [cannons] :as ship}]
   (sound/play-sound-effect :cannon)
-  (let [cannon-rvels (map #(cannon-rotational-velocity % rvel r) cannons)
-        direction    (u/direction-vector r)
-        orthogonals  (u/orthogonals direction)]
-    (->> cannons
-         ;; firing direction
-         (map (fn [{[x y] :pos}] (if (pos? x)
-                                   (last (u/orthogonals direction))
-                                   (first (u/orthogonals direction)))))
-
-         ;; default projectile speed
-         (map (u/scale-by 10))
-
-         ;; add ship velocity
-         (map (partial map + vel))
-
-         ;; account for cannon rotational velocity
-         (map (partial map +) cannon-rvels)
-
-         ;; create projectile
-         (map #(projectile/->projectile pos :vel %)))))
+  (map (fn [cannon]
+         (projectile/->projectile (firing-position cannon ship)
+                                  :vel (firing-velocity cannon ship)))
+       cannons))
 
 (defn key-pressed
   [state e]
@@ -199,6 +211,6 @@
     (let [pc-ships (filter :pc? (get-in state [:sprites :ocean :ships]))]
       (update-in state
                  [:sprites :ocean :projectiles]
-                 #(concat (apply concat (map fire pc-ships))
+                 #(concat (mapcat fire pc-ships)
                           %)))
     state))

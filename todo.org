@@ -1,5 +1,8 @@
 * Things to do:
 
+** misc
+*** TODO make sound toggleable
+*** TODO make debug mode toggleable
 ** ship
 *** DONE redesign, needs to be much smaller
 *** TODO add health bar
@@ -8,6 +11,7 @@
 *** cannons
 **** DONE add some component of rotational velocity to cannonballs?
 **** DONE draw them
+**** DONE spawn projectiles outside of ship collision bounds
 **** TODO draw them better, animated spritesheets pls
 **** TODO give them a cooldown, show a bar
 **** TODO be able to add more cannons
@@ -19,7 +23,7 @@
 *** TODO develop more sophisticated movement AI
 *** TODO develop targeting AI
 ** cannonballs
-*** TODO detect ball/ship collisions
+*** DONE detect ball/ship collisions
 *** TODO add explosions on hit
 **** add splash on miss?
 **** different ranges?

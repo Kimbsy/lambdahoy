@@ -9,7 +9,7 @@
 
 (defn update-animation
   [{:keys [current-animation delay-count] :as s}]
-  (if (= 0 delay-count)
+  (if (zero? delay-count)
     (let [animation (current-animation (:animations s))
           max-frame (:frames animation)]
       (update s :animation-frame #(mod (inc %) max-frame)))
