@@ -42,7 +42,7 @@
    :cannons cannons
 
    :npc-command {:direction :nil
-                 :duration  50}})
+                 :duration  25}})
 
 (defn bounding-poly
   "Calculate the collision boundary polygon for a ship."
@@ -55,7 +55,7 @@
   "Predicate to determine if a pos is within a square the size of the
   ship's length centered on the ship's pos."
   [{[sx sy] :pos} [x y]]
-  (let [half-height (/ ship-height 2)]
+  (let [half-height (* ship-height 1/2)]
     (and (<= (- sx half-height) x (+ sx half-height))
          (<= (- sy half-height) y (+ sy half-height)))))
 
@@ -91,7 +91,7 @@
 (defn update-speed
   [{:keys [speed]} held-keys]
   (cond (held-keys :up)
-        (min (+ speed 0.1) 10)
+        (min (+ speed 0.1) 5)
 
         (held-keys :down)
         (max (- speed 0.1) 0)

@@ -4,7 +4,7 @@
 (defonce ^:dynamic *main-music-thread* (atom nil))
 
 ;; @TODO: make sound a toggleable setting
-(def ^:dynamic *sound-enabled* true)
+(def ^:dynamic *sound-enabled* false)
 
 (def tracks {:default "music/Captain Scurvy.mp3"})
 

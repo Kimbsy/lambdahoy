@@ -12,7 +12,7 @@
 (defn init-sprites
   []
   {:ships [;; player ship
-           (ship/->ship [(* (q/width) 3/4) (* (q/height) 3/4)]
+           (ship/->ship [(* (q/width) 1/2) (* (q/height) 1/2)]
                         :r 0
                         :pc? true
                         :crew [(captain/->captain [0 15])]
@@ -25,13 +25,13 @@
 
            ;; npc ships
            (ship/->ship [(* (q/width) 1/3) (* (q/height) 1/2)]
-                        :r 90
-                        :vel [0 0]
+                        :r 270
+                        :vel [0 -2]
                         :cannons [(cannon/->cannon [60 0])
                                   (cannon/->cannon [-60 0])])
            (ship/->ship [(* (q/width) 2/3) (* (q/height) 1/2)]
                         :r 90
-                        :vel [0 0]
+                        :vel [0 2]
                         :cannons [(cannon/->cannon [60 0])
                                   (cannon/->cannon [-60 0])])]
    :projectiles []
@@ -110,10 +110,19 @@
 (defn draw-state
   [state]
   (u/background u/blue)
-  (doall (map ship/draw-self
-              (get-in state [:sprites :ocean :ships])))
-  (doall (map sprite/draw-animated-sprite
-              (get-in state [:sprites :ocean :projectiles]))))
+  (let [pc-ship (first (filter :pc? (get-in state [:sprites :ocean :ships])))
+        [x y]   (:pos pc-ship)]
+    (u/wrap-trans-rot
+     (* (q/width) 1/2) (* (q/height) 1/2) 0
+     (fn []
+       (u/wrap-trans-rot
+        (- x) (- y) 0
+        (fn []
+          (doall (map ship/draw-self
+                      (remove :pc? (get-in state [:sprites :ocean :ships]))))
+          (doall (map sprite/draw-animated-sprite
+                      (get-in state [:sprites :ocean :projectiles])))
+          (ship/draw-self pc-ship)))))))
 
 (defn switch-to-menu
   "If esc was pressed, exit to menu"

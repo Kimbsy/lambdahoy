@@ -85,10 +85,11 @@
   function (probably drawing a sprite, then reset the transform matrix
   to the identity."
   [x y r f]
+  (q/push-matrix)
   (q/translate x y)
   (q/rotate (q/radians r))
   (f)
-  (q/reset-matrix))
+  (q/pop-matrix))
 
 (defn encloses?
   "Predicate to determine if a rect contains a pos."

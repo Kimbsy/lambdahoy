@@ -6,8 +6,7 @@
 ** ship
 *** DONE redesign, needs to be much smaller
 *** DONE add health bar
-**** where?
-**** should it rotate with the ship or be fixed orientation?
+*** TODO markers indicating off screen
 *** TODO sinking animation
 *** cannons
 **** DONE add some component of rotational velocity to cannonballs?
@@ -30,7 +29,7 @@
 **** different ranges?
 **** ball/ball collisions?
 ** map
-*** TODO should be big, camera should follow ship around
+*** DONE should be big, camera should follow ship around
 *** TODO islands
 *** maybe bounded ocean?
 *** wave textures?
