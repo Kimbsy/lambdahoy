@@ -8,10 +8,10 @@
 
 (def tracks {:default "music/Captain Scurvy.mp3"})
 
-(def sound-effects {:cannon ["sound-effects/cannon-fire-1.mp3"
-                             "sound-effects/cannon-fire-2.mp3"
-                             "sound-effects/cannon-fire-3.mp3"
-                             "sound-effects/cannon-fire-4.mp3"]})
+(def sound-effects {:cannon ["sound-effects/cannon-fire-1-quiet.mp3"
+                             "sound-effects/cannon-fire-2-quiet.mp3"
+                             "sound-effects/cannon-fire-3-quiet.mp3"
+                             "sound-effects/cannon-fire-4-quiet.mp3"]})
 
 (defn ->player
   [resource-name]

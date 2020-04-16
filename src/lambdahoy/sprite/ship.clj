@@ -22,14 +22,15 @@
    [-80 -67]])
 
 (defn ->ship
-  [pos & {:keys [r vel rvel health pc? crew cannons]
+  [pos & {:keys [r vel rvel health pc? crew cannons loading]
           :or   {r       0
                  vel     [0 0]
                  rvel    0
                  health  (bar/->bar [0 100] 50 5)
                  pc?     false
                  crew    []
-                 cannons []}}]
+                 cannons []
+                 loading (bar/->bar [0 110] 50 5 :fg-color u/gold)}}]
   {:pos     pos
    :vel     vel
    :r       r
@@ -40,6 +41,7 @@
    :pc?     pc?
    :crew    crew
    :cannons cannons
+   :loading loading
 
    :npc-command {:direction :nil
                  :duration  25}})
@@ -131,13 +133,16 @@
   (-> ship
       (update-if-pc-ship held-keys)
       update-if-npc-ship
+      (update-in [:loading] (fn [{:keys [max-value] :as loading}]
+                              (update loading :current
+                                      #(min max-value (inc %)))))
       (assoc :vel (u/velocity-vector ship))
       (assoc :pos (map + pos vel))
       (update :r #(mod (+ % (:rvel ship)) 360))
       (update :crew #(map sprite/update-self %))))
 
 (defn draw-self
-  [{:keys [pos r image health pc? crew cannons indicator] :as ship}]
+  [{:keys [pos r image health pc? crew cannons loading indicator] :as ship}]
   (u/wrap-trans-rot
    pos r
    #(do
@@ -147,7 +152,9 @@
       (doall (map cannon/draw-self cannons))))
   (u/wrap-trans-rot
    pos 0
-   #(bar/draw-self health)))
+   #(do
+      (bar/draw-self health)
+      (bar/draw-self loading))))
 
 (defn cannon-rotational-velocity
   "Determine the current velocity vector of a cannon based on the
@@ -196,23 +203,37 @@
         rotated-offset (u/rotate-vector scaled-offset (:r ship))]
     (map + (:pos ship) rotated-offset)))
 
+(defn loaded?
+  "Predicate to indicate that a ship is ready to fire it's cannons."
+  [{{current :current max-value :max-value} :loading}]
+  (= current max-value))
+
 ;; @TODO: maybe firing should be based on held keys? once we implement cannon firing delays?
 (defn fire
   "Create a vector of projectiles as a result of firing all cannons on a
   ship."
-  [{:keys [cannons] :as ship}]
-  (sound/play-sound-effect :cannon)
-  (map (fn [cannon]
-         (projectile/->projectile (firing-position cannon ship)
-                                  :vel (firing-velocity cannon ship)))
-       cannons))
+  [{:keys [cannons loading] :as ship}]
+  (when (loaded? ship)
+    (sound/play-sound-effect :cannon)
+    (map (fn [cannon]
+           (projectile/->projectile (firing-position cannon ship)
+                                    :vel (firing-velocity cannon ship)))
+         cannons)))
 
 (defn key-pressed
   [state e]
   (if (= :space (:key e))
-    (let [pc-ships (filter :pc? (get-in state [:sprites :ocean :ships]))]
-      (update-in state
-                 [:sprites :ocean :projectiles]
-                 #(concat (mapcat fire pc-ships)
-                          %)))
+    (let [ships             (get-in state [:sprites :ocean :ships])
+          pc-ships          (filter :pc? ships)
+          npc-ships         (remove :pc? ships)
+          fired-projectiles (mapcat fire pc-ships)]
+      (if (seq fired-projectiles)
+        (-> state
+            (update-in [:sprites :ocean :projectiles]
+                       #(concat fired-projectiles %))
+            (assoc-in [:sprites :ocean :ships]
+                      (concat npc-ships
+                              (map (fn [pc-ship] (assoc-in pc-ship [:loading :current] 0))
+                                   pc-ships))))
+        state))
     state))

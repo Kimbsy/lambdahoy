@@ -1,6 +1,7 @@
 (ns lambdahoy.scene.ocean
   (:require [lambdahoy.scene :as scene]
             [lambdahoy.sprite :as sprite]
+            [lambdahoy.sprite.bar :as bar]
             [lambdahoy.sprite.cannon :as cannon]
             [lambdahoy.sprite.captain :as captain]
             [lambdahoy.sprite.projectile :as projectile]
@@ -14,7 +15,11 @@
                :r (rand-int 360)
                :vel [0 -3]
                :cannons [(cannon/->cannon [60 0])
-                         (cannon/->cannon [-60 0])]))
+                         (cannon/->cannon [-60 0])]
+               :loading (bar/->bar [0 110] 50 5
+                                   :fg-color u/gold
+                                   :current (rand-int 30)
+                                   :max-value (+ 70 (rand-int 30)))))
 
 (defn init-sprites
   []
@@ -89,6 +94,26 @@
         (assoc-in [:sprites :ocean :ships] (:ships updated))
         (assoc-in [:sprites :ocean :projectiles] (:projectiles updated)))))
 
+(defn fire-npc-ships
+  "Let npc ships fire if cannons fully loaded."
+  [state]
+  (let [ships             (get-in state [:sprites :ocean :ships])
+        pc-ships          (filter :pc? ships)
+        npc-ships         (remove :pc? ships)
+        firing-npc-ships  (filter ship/loaded? npc-ships)
+        loading-npc-ships (remove ship/loaded? npc-ships)
+        fired-projectiles (mapcat ship/fire firing-npc-ships)]
+    (if (seq fired-projectiles)
+      (-> state
+          (update-in [:sprites :ocean :projectiles]
+                     #(concat fired-projectiles %))
+          (assoc-in [:sprites :ocean :ships]
+                    (concat pc-ships
+                            loading-npc-ships
+                            (map (fn [npc-ship] (assoc-in npc-ship [:loading :current] 0))
+                                 firing-npc-ships))))
+      state)))
+
 (defn update-state
   [state]
   (-> state
@@ -96,10 +121,11 @@
                  #(->> %
                        (map (partial ship/update-self state))
                        (remove (fn [s] (<= (:current (:health s)) 0))))) ;; @TODO: we'll want a better way of sinking ships in the future
+      fire-npc-ships
       (update-in [:sprites :ocean :projectiles]
                  #(->> %
-                      (map projectile/update-self)
-                      (remove nil?))) ; clean up projectiles that have died
+                       (map projectile/update-self)
+                       (remove nil?))) ; clean up projectiles that have died
       ship-projectile-collision))
 
 (defn draw-indicator

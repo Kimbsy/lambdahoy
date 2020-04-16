@@ -8,6 +8,7 @@
 (def gray grey)
 (def red [255 0 0])
 (def green [0 255 0])
+(def gold [232 174 0])
 
 (def title-text-size 120)
 (def large-text-size 50)
