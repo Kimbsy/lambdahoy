@@ -3,7 +3,7 @@
 
 (defn update-frame-delay
   [{:keys [current-animation] :as s}]
-  (let [animation (current-animation (:animations s))
+  (let [animation   (current-animation (:animations s))
         frame-delay (:frame-delay animation)]
     (update s :delay-count #(mod (inc %) frame-delay))))
 

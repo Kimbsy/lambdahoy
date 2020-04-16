@@ -6,6 +6,7 @@
             [lambdahoy.sprite.captain :as captain]
             [lambdahoy.sprite.projectile :as projectile]
             [lambdahoy.sprite.ship :as ship]
+            [lambdahoy.sprite.wave :as wave]
             [lambdahoy.utils :as u]
             [quil.core :as q]))
 
@@ -37,7 +38,9 @@
                   (take (+ 2 (* 2 difficulty)) (repeatedly #(random-npc-ship difficulty))))
 
    :projectiles []
-   :waves       []})
+   :waves       (map wave/->wave [[0 0] [900 0] [1800 0]
+                                  [0 600] [900 600] [1800 600]
+                                  [0 1200] [900 1200] [1800 1200]])})
 
 (defn ship-hit-by-projectile?
   "Predicate to determine if a ship is colliding with a projectile. Has multiple levels of granularity.
@@ -133,21 +136,49 @@
       :else
       state)))
 
+(defn reposition-wave
+  [{:keys [pos] :as wave} [pc-x pc-y]]
+  (let [[w-x w-y] pos
+        updated-x (cond
+                    (< 1000 (- w-x pc-x))
+                    (update-in wave [:pos 0] #(- % 2700))
+
+                    (< (- w-x pc-x) -1000)
+                    (update-in wave [:pos 0] #(+ % 2700))
+
+                    :else
+                    wave)
+        updated-xy (cond
+                     (< 700 (- w-y pc-y))
+                     (update-in updated-x [:pos 1] #(- % 1800))
+
+                     (< (- w-y pc-y) -700)
+                     (update-in updated-x [:pos 1] #(+ % 1800))
+
+                     :else
+                     wave)]
+    updated-xy))
+
 (defn update-state
   [state]
-  (-> state
-      (update-in [:sprites :ocean :ships]
-                 #(->> %
-                       (map (partial ship/update-self state))
-                       (remove (fn [s] (and (not (:pc? s))
-                                            (<= (:current (:health s)) 0)))))) ;; @TODO: we'll want a better way of sinking ships in the future
-      fire-npc-ships
-      (update-in [:sprites :ocean :projectiles]
-                 #(->> %
-                       (map projectile/update-self)
-                       (remove nil?))) ; clean up projectiles that have died
-      ship-projectile-collision
-      game-end))
+  (let [ships   (get-in state [:sprites :ocean :ships])
+        pc-ship (first (filter :pc? ships))]
+    (-> state
+        (update-in [:sprites :ocean :ships]
+                   #(->> %
+                         (map (partial ship/update-self state))
+                         (remove (fn [s] (and (not (:pc? s))
+                                              (<= (:current (:health s)) 0)))))) ;; @TODO: we'll want a better way of sinking ships in the future
+        (update-in [:sprites :ocean :waves]
+                   #(->> %
+                         (map (fn [wave] (reposition-wave wave (:pos pc-ship))))))
+        fire-npc-ships
+        (update-in [:sprites :ocean :projectiles]
+                   #(->> %
+                         (map projectile/update-self)
+                         (remove nil?))) ; clean up projectiles that have died
+        ship-projectile-collision
+        game-end)))
 
 (defn draw-indicator
   "Draw a tirangle pointing at any off screen ships."
@@ -184,10 +215,12 @@
        (u/wrap-trans-rot
         (map - (:pos pc-ship)) 0
         (fn []
+          (doall (map sprite/draw-static-sprite
+                      (get-in state [:sprites :ocean :waves])))
           (doall (map ship/draw-self
                       (remove :pc? (get-in state [:sprites :ocean :ships]))))
           (doall (map sprite/draw-animated-sprite
-                      (get-in state [:sprites :ocean :projectiles])))
+                      (get-in state [:sprites :ocean :projectiles])))          
           (ship/draw-self pc-ship)))
        (doall (map #(draw-indicator % pc-ship)
                    (remove :pc? (get-in state [:sprites :ocean :ships]))))))))
