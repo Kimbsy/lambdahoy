@@ -1,12 +1,17 @@
 (ns lambdahoy.scene.end
-  (:require [lambdahoy.scene.menu :as menu]
+  (:require [lambdahoy.scene :as scene]
+            [lambdahoy.scene.menu :as menu]
             [lambdahoy.scene.ocean :as ocean]
-            [lambdahoy.sprite.captain :as captain]
-            [quil.core :as q]
             [lambdahoy.sprite :as sprite]
-            [lambdahoy.sprite.text :as text]
             [lambdahoy.sprite.button :as button]
-            [lambdahoy.scene :as scene]))
+            [lambdahoy.sprite.captain :as captain]
+            [lambdahoy.sprite.text :as text]
+            [lambdahoy.utils :as u]
+            [quil.core :as q]))
+
+(declare exit-game
+         restart-game
+         restart-game-harder)
 
 (defn init-sprites
   []
@@ -15,7 +20,7 @@
                                   (* (q/height) 1/5)]
                                  :size u/title-text-size
                                  :color u/white)
-                    (text/->text "You defeated every enemy ship, truly you are the bravest Priate Captain."
+                    (text/->text "You defeated every enemy ship, truly you are the bravest Pirate Captain."
                                  [(* (q/width) 1/2)
                                   (* (q/height) 5/20)]
                                  :style :italic
@@ -31,25 +36,48 @@
                                  :style :italic
                                  :color u/white)]}
    
-   :buttons    [(button/->button "RESTART" [(* (q/width) 1/2) (* (q/height) 1/2)] restart-game)
-                (button/->button "QUIT" [(* (q/width) 1/2) (* (q/height) 2/3)] exit-game)]
+   :buttons {:victory [(button/->button "Harder!"
+                                        [(* (q/width) 1/2) (* (q/height) 1/2)]
+                                        restart-game-harder
+                                        :w 300)
+                       (button/->button "Quit"
+                                        [(* (q/width) 1/2) (* (q/height) 2/3)]
+                                        exit-game)]
+             :defeat  [(button/->button "Restart"
+                                        [(* (q/width) 1/2) (* (q/height) 1/2)]
+                                        restart-game
+                                        :w 300)
+                       (button/->button "Quit"
+                                        [(* (q/width) 1/2) (* (q/height) 2/3)]
+                                        exit-game)]}
+
    :characters {:victory [(captain/->captain [(* (q/width) 1/4) (* (q/height) 1/2)]
                                              :size :big
                                              :current-animation :jump)]
                 :defeat  [(captain/->captain [(* (q/width) 1/4) (* (q/height) 1/2)]
                                              :size :big)]}})
 
-(defn restart-game
-  [state]
-  {:current-scene (ocean/->Ocean)
-   :sprites       {:menu  (menu/init-sprites)
-                   :ocean (ocean/init-sprites)
-                   :end   (init-sprites)}
-   :held-keys     #{}})
-
 (defn exit-game
   [state]
   (q/exit))
+
+(defn restart-game
+  [{:keys [difficulty]}]
+  {:current-scene (ocean/->Ocean)
+   :sprites       {:menu  (menu/init-sprites)
+                   :ocean (ocean/init-sprites difficulty)
+                   :end   (init-sprites)}
+   :held-keys     #{}
+   :difficulty difficulty})
+
+(defn restart-game-harder
+  [{:keys [difficulty]}]
+  {:current-scene (ocean/->Ocean)
+   :sprites       {:menu  (menu/init-sprites)
+                   :ocean (ocean/init-sprites (inc difficulty))
+                   :end   (init-sprites)}
+   :held-keys     #{}
+   :difficulty (inc difficulty)})
 
 (defn update-state
   [{:keys [outcome] :as state}]
@@ -67,22 +95,22 @@
   (doall (map sprite/draw-animated-sprite
               (get-in state [:sprites :end :characters outcome])))
   (doall (map button/draw-self
-              (get-in state [:sprites :end :buttons]))))
+              (get-in state [:sprites :end :buttons outcome]))))
 
 (defn mouse-pressed
-  [state e]
-  (update-in state [:sprites :end :buttons]
+  [{:keys [outcome] :as state} e]
+  (update-in state [:sprites :end :buttons outcome]
              button/mouse-pressed
              e))
 
 (defn mouse-released
-  [state e]
+  [{:keys [outcome] :as state} e]
   (as-> state state
     (reduce (fn [acc-state f]
               (f acc-state e))
             state
-            [(button/mouse-released (get-in state [:sprites :end :buttons]))])
-    (update-in state [:sprites :end :buttons]
+            [(button/mouse-released (get-in state [:sprites :end :buttons outcome]))])
+    (update-in state [:sprites :end :buttons outcome]
                (fn [buttons]
                  (map #(assoc % :held? false)
                       buttons)))))

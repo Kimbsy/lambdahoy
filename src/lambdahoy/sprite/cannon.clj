@@ -11,4 +11,6 @@
   [{[x y] :pos}]
   (q/no-stroke)
   (u/fill u/black)
-  (q/rect x y 30 10))
+  (if (pos? x)
+    (q/rect x y 30 10)
+    (q/rect x y -30 10)))

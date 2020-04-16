@@ -7,13 +7,8 @@
             [quil.core :as q]
             [lambdahoy.sprite.captain :as captain]))
 
-(defn start-game
-  [state]
-  (u/change-scene state :ocean))
-
-(defn exit-game
-  [state]
-  (q/exit))
+(declare start-game
+         exit-game)
 
 (defn init-sprites
   []
@@ -28,9 +23,21 @@
                              :style :italic
                              :color u/white)]
    :waves      []
-   :buttons    [(button/->button "PLAY" [(* (q/width) 1/2) (* (q/height) 1/2)] start-game)
-                (button/->button "QUIT" [(* (q/width) 1/2) (* (q/height) 2/3)] exit-game)]
+   :buttons    [(button/->button "Play"
+                                 [(* (q/width) 1/2) (* (q/height) 1/2)]
+                                 start-game)
+                (button/->button "Quit"
+                                 [(* (q/width) 1/2) (* (q/height) 2/3)]
+                                 exit-game)]
    :characters [(captain/->captain [(* (q/width) 1/4) (* (q/height) 1/2)] :size :big)]})
+
+(defn start-game
+  [state]
+  (u/change-scene state :ocean))
+
+(defn exit-game
+  [state]
+  (q/exit))
 
 (defn update-state
   [state]

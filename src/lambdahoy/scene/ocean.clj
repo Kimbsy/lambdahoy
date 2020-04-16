@@ -10,10 +10,10 @@
             [quil.core :as q]))
 
 (defn random-npc-ship
-  []
+  [difficulty]
   (ship/->ship [(rand-int (* (q/width) 1.5)) (rand-int (* (q/height) 1.5))]
                :r (rand-int 360)
-               :vel [0 -3]
+               :vel [0 (max 2 (min 7 difficulty))]
                :cannons [(cannon/->cannon [60 0])
                          (cannon/->cannon [-60 0])]
                :loading (bar/->bar [0 110] 50 5
@@ -22,7 +22,7 @@
                                    :max-value (+ 70 (rand-int 30)))))
 
 (defn init-sprites
-  []
+  [difficulty]
   {:ships (concat [ ;; player ship
                    (ship/->ship [(* (q/width) 1/2) (* (q/height) 1/2)]
                                 :r 0
@@ -34,7 +34,7 @@
                                           (cannon/->cannon [-60 45])
                                           (cannon/->cannon [-60 0])
                                           (cannon/->cannon [-60 -45])])]
-                  (take 5 (repeatedly random-npc-ship)))
+                  (take (+ 2 (* 2 difficulty)) (repeatedly #(random-npc-ship difficulty))))
 
    :projectiles []
    :waves       []})

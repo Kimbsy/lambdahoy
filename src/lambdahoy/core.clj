@@ -9,15 +9,18 @@
             [quil.core :as q]
             [quil.middleware :as m]))
 
+(def starting-difficulty 0)
+
 (defn setup
   []
   (q/frame-rate 60)
   (sound/init)
-  {:current-scene (menu/->Menu) #_ (ocean/->Ocean)
+  {:current-scene (menu/->Menu)
    :sprites       {:menu  (menu/init-sprites)
-                   :ocean (ocean/init-sprites)
+                   :ocean (ocean/init-sprites starting-difficulty)
                    :end   (end/init-sprites)}
-   :held-keys     #{}})
+   :held-keys     #{}
+   :difficulty    starting-difficulty})
 
 (defn update-state
   "The current scene is responsible for updating the state, but we need
