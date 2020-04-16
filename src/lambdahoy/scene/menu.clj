@@ -30,8 +30,7 @@
    :waves      []
    :buttons    [(button/->button "PLAY" [(* (q/width) 1/2) (* (q/height) 1/2)] start-game)
                 (button/->button "QUIT" [(* (q/width) 1/2) (* (q/height) 2/3)] exit-game)]
-   :characters [(captain/->captain [(* (q/width) 1/4) (* (q/height) 1/2)] :size :big)]
-   })
+   :characters [(captain/->captain [(* (q/width) 1/4) (* (q/height) 1/2)] :size :big)]})
 
 (defn update-state
   [state]

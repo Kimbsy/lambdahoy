@@ -1,12 +1,13 @@
 (ns lambdahoy.core
   (:gen-class)
-  (:require [quil.core :as q]
-            [quil.middleware :as m]
-            [lambdahoy.sound :as sound]
-            [lambdahoy.scene.ocean :as ocean]
+  (:require [lambdahoy.scene :as scene]
+            [lambdahoy.scene.end :as end]
             [lambdahoy.scene.menu :as menu]
-            [lambdahoy.scene :as scene]
-            [lambdahoy.scene.transition :as transition]))
+            [lambdahoy.scene.ocean :as ocean]
+            [lambdahoy.scene.transition :as transition]
+            [lambdahoy.sound :as sound]
+            [quil.core :as q]
+            [quil.middleware :as m]))
 
 (defn setup
   []
@@ -14,7 +15,8 @@
   (sound/init)
   {:current-scene (menu/->Menu) #_ (ocean/->Ocean)
    :sprites       {:menu  (menu/init-sprites)
-                   :ocean (ocean/init-sprites)}
+                   :ocean (ocean/init-sprites)
+                   :end   (end/init-sprites)}
    :held-keys     #{}})
 
 (defn update-state

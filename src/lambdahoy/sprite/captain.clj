@@ -2,7 +2,9 @@
   (:require [quil.core :as q]))
 
 (defn ->captain
-  [pos & {:keys [size] :or {size :default}}]
+  [pos & {:keys [size current-animation]
+          :or   {size              :default
+                 current-animation :idle}}]
   {:pos pos
    :vel [0 0]
    :w   (case size
@@ -13,9 +15,9 @@
           24)
 
    :spritesheet       (case size
-                        :big     (q/load-image "images/captain-big.png")
+                        :big (q/load-image "images/captain-big.png")
                         (q/load-image "images/a0218040a060000.png"))
-   :current-animation :idle
+   :current-animation current-animation
    :delay-count       0
    :animation-frame   0
    :animations        {:none {:frames      1

@@ -19,7 +19,7 @@
 ** enemy ships
 *** DONE draw them
 *** DONE let them roam about on their own
-*** TODO have them fire randomly
+*** DONE have them fire randomly
 *** TODO develop more sophisticated movement AI
 *** TODO develop targeting AI
 ** cannonballs
@@ -30,13 +30,13 @@
 **** ball/ball collisions?
 ** map
 *** DONE should be big, camera should follow ship around
-*** TODO islands
+*** TODO wave textures
+*** maybe islands?
 *** maybe bounded ocean?
-*** wave textures?
 ** DONE menu screen
-** TODO ship upgrade/shop screen
-** TODO game end screen
 ** DONE music
+** DONE game end screen
+** TODO ship upgrade/shop screen
 
 ** Gameplay ideas
 *** civilians have cargo you can steal

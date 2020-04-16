@@ -23,7 +23,7 @@
 
 (defn init-sprites
   []
-  {:ships (concat [;; player ship
+  {:ships (concat [ ;; player ship
                    (ship/->ship [(* (q/width) 1/2) (* (q/height) 1/2)]
                                 :r 0
                                 :pc? true
@@ -34,7 +34,7 @@
                                           (cannon/->cannon [-60 45])
                                           (cannon/->cannon [-60 0])
                                           (cannon/->cannon [-60 -45])])]
-                  (take 4 (repeatedly random-npc-ship)))
+                  (take 5 (repeatedly random-npc-ship)))
 
    :projectiles []
    :waves       []})
@@ -76,7 +76,7 @@
                               (reduce +))]
               (-> acc
                   (update :ships (fn [ships]
-                                   (conj ships (update-in ship [:health :current] #(- % damage)))))
+                                   (conj ships (update-in ship [:health :current] #(max 0 (- % damage))))))
                   (assoc :projectiles (into missing-projectiles
                                             (map #(assoc % :duration 0) hitting-projectiles))))))
           {:ships       []
@@ -114,19 +114,40 @@
                                  firing-npc-ships))))
       state)))
 
+(defn game-end
+  "Check victory/defeat conditions."
+  [state]
+  (let [ships   (get-in state [:sprites :ocean :ships])
+        pc-ship (first (filter :pc? ships))]
+    (cond
+      (zero? (-> pc-ship :health :current))
+      (-> state
+          (assoc :outcome :defeat)
+          (u/change-scene :end))
+
+      (every? :pc? ships)
+      (-> state
+          (assoc :outcome :victory)
+          (u/change-scene :end))
+
+      :else
+      state)))
+
 (defn update-state
   [state]
   (-> state
       (update-in [:sprites :ocean :ships]
                  #(->> %
                        (map (partial ship/update-self state))
-                       (remove (fn [s] (<= (:current (:health s)) 0))))) ;; @TODO: we'll want a better way of sinking ships in the future
+                       (remove (fn [s] (and (not (:pc? s))
+                                            (<= (:current (:health s)) 0)))))) ;; @TODO: we'll want a better way of sinking ships in the future
       fire-npc-ships
       (update-in [:sprites :ocean :projectiles]
                  #(->> %
                        (map projectile/update-self)
                        (remove nil?))) ; clean up projectiles that have died
-      ship-projectile-collision))
+      ship-projectile-collision
+      game-end))
 
 (defn draw-indicator
   "Draw a tirangle pointing at any off screen ships."

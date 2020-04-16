@@ -1,5 +1,6 @@
 (ns lambdahoy.scene.transition
   (:require [lambdahoy.scene :as scene]
+            [lambdahoy.scene.end :as end]
             [lambdahoy.scene.menu :as menu]
             [lambdahoy.scene.ocean :as ocean]
             [quil.core :as q]))
@@ -11,6 +12,7 @@
     (case (:target-scene state)
       :ocean (assoc state :current-scene (ocean/->Ocean))
       :menu (assoc state :current-scene (menu/->Menu))
+      :end (assoc state :current-scene (end/->End))
       state)))
 
 (defn draw-state
