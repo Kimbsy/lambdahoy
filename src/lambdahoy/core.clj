@@ -49,7 +49,7 @@
   [& args]
   (q/sketch
    :title "Lambdahoy: functional adventures on the high seas"
-   :size [1800 1200]
+   :size [1800 1200] #_ :fullscreen
    :setup setup
    :update update-state
    :draw scene/draw-state*

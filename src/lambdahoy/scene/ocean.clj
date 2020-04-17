@@ -119,20 +119,20 @@
   [{:keys [pos] :as wave} [pc-x pc-y]]
   (let [[w-x w-y] pos
         updated-x (cond
-                    (< 1000 (- w-x pc-x))
-                    (update-in wave [:pos 0] #(- % 2700))
+                    (< (+ 100 (* (q/width) 1/2)) (- w-x pc-x))
+                    (update-in wave [:pos 0] #(- % (* (q/width) 3/2)))
 
-                    (< (- w-x pc-x) -1000)
-                    (update-in wave [:pos 0] #(+ % 2700))
+                    (< (- w-x pc-x) (- (+ 100 (* (q/width) 1/2))))
+                    (update-in wave [:pos 0] #(+ % (* (q/width) 3/2)))
 
                     :else
                     wave)
         updated-xy (cond
-                     (< 700 (- w-y pc-y))
-                     (update-in updated-x [:pos 1] #(- % 1800))
+                     (< (+ 100 (* (q/height) 1/2)) (- w-y pc-y))
+                     (update-in updated-x [:pos 1] #(- % (* (q/height) 3/2)))
 
-                     (< (- w-y pc-y) -700)
-                     (update-in updated-x [:pos 1] #(+ % 1800))
+                     (< (- w-y pc-y) (- (+ 100 (* (q/height) 1/2))))
+                     (update-in updated-x [:pos 1] #(+ % (* (q/height) 3/2)))
 
                      :else
                      wave)]
