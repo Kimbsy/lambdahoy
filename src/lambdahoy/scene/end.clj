@@ -25,7 +25,7 @@
                                   (* (q/height) 1/4)]
                                  :style :italic
                                  :color u/white)
-                    (text/->text "Max difficulty reached: 1"
+                    (text/->text "Level reached: 1"
                                  [(* (q/width) 1/2)
                                   (* (q/height) 6/20)]
                                  :color u/white)]
@@ -39,7 +39,7 @@
                                   (* (q/height) 5/20)]
                                  :style :italic
                                  :color u/white)
-                    (text/->text "Max difficulty reached: 1"
+                    (text/->text "Level reached: 1"
                                  [(* (q/width) 1/2)
                                   (* (q/height) 6/20)]
                                  :color u/white)]}
@@ -51,7 +51,7 @@
                        (button/->button "Quit"
                                         [(* (q/width) 1/2) (* (q/height) 2/3)]
                                         exit-game)]
-             :defeat  [(button/->button "Restart"
+             :defeat  [(button/->button "Again!"
                                         [(* (q/width) 1/2) (* (q/height) 1/2)]
                                         restart-game
                                         :w 300)
@@ -93,7 +93,7 @@
       (update-in [:sprites :end :characters outcome]
                  #(map sprite/update-self %))
       (update-in [:sprites :end :text outcome 2]
-                 #(assoc % :content (str "Max difficulty reached: " difficulty)))))
+                 #(assoc % :content (str "Level reached: " difficulty)))))
 
 (defn draw-state
   [{:keys [outcome] :as state}]
