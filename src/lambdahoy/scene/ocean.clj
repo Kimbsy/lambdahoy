@@ -14,9 +14,25 @@
   [difficulty]
   (ship/->ship [(rand-int (* (q/width) 1.5)) (rand-int (* (q/height) 1.5))]
                :r (rand-int 360)
-               :vel [0 (max 2 (min 7 difficulty))]
-               :cannons [(cannon/->cannon [60 0])
-                         (cannon/->cannon [-60 0])]
+               :vel [0 (max 2 (min 7 (- difficulty 1)))]
+               :cannons (cond
+                          (< 5 difficulty)
+                          [(cannon/->cannon [60 45])
+                           (cannon/->cannon [60 0])
+                           (cannon/->cannon [60 -45])
+                           (cannon/->cannon [-60 45])
+                           (cannon/->cannon [-60 0])
+                           (cannon/->cannon [-60 -45])]
+
+                          (< 3 difficulty)
+                          [(cannon/->cannon [60 30])
+                           (cannon/->cannon [60 -30])
+                           (cannon/->cannon [-60 30])
+                           (cannon/->cannon [-60 -30])]
+
+                          :else
+                          [(cannon/->cannon [60 0])
+                           (cannon/->cannon [-60 0])])
                :loading (bar/->bar [0 110] 50 5
                                    :fg-color u/gold
                                    :current (rand-int 30)
@@ -35,12 +51,12 @@
                                           (cannon/->cannon [-60 45])
                                           (cannon/->cannon [-60 0])
                                           (cannon/->cannon [-60 -45])])]
-                  (take (+ 2 (* 2 difficulty)) (repeatedly #(random-npc-ship difficulty))))
+                  (take (+ 2 (* 2 (min 2 (- difficulty 1)))) (repeatedly #(random-npc-ship difficulty))))
 
    :projectiles []
-   :waves       (map wave/->wave [[0 0] [900 0] [1800 0]
-                                  [0 600] [900 600] [1800 600]
-                                  [0 1200] [900 1200] [1800 1200]])})
+   :waves       (map wave/->wave [[900 0]
+                                  [900 600]
+                                  [0 1200]  [1800 1200]])})
 
 (defn ship-hit-by-projectile?
   "Predicate to determine if a ship is colliding with a projectile. Has multiple levels of granularity.
@@ -97,6 +113,31 @@
         (assoc-in [:sprites :ocean :ships] (:ships updated))
         (assoc-in [:sprites :ocean :projectiles] (:projectiles updated)))))
 
+(defn reposition-wave
+  "Move waves which are offscreen to the other side of the screen so
+  they tile as you move."
+  [{:keys [pos] :as wave} [pc-x pc-y]]
+  (let [[w-x w-y] pos
+        updated-x (cond
+                    (< 1000 (- w-x pc-x))
+                    (update-in wave [:pos 0] #(- % 2700))
+
+                    (< (- w-x pc-x) -1000)
+                    (update-in wave [:pos 0] #(+ % 2700))
+
+                    :else
+                    wave)
+        updated-xy (cond
+                     (< 700 (- w-y pc-y))
+                     (update-in updated-x [:pos 1] #(- % 1800))
+
+                     (< (- w-y pc-y) -700)
+                     (update-in updated-x [:pos 1] #(+ % 1800))
+
+                     :else
+                     wave)]
+    updated-xy))
+
 (defn fire-npc-ships
   "Let npc ships fire if cannons fully loaded."
   [state]
@@ -135,29 +176,6 @@
 
       :else
       state)))
-
-(defn reposition-wave
-  [{:keys [pos] :as wave} [pc-x pc-y]]
-  (let [[w-x w-y] pos
-        updated-x (cond
-                    (< 1000 (- w-x pc-x))
-                    (update-in wave [:pos 0] #(- % 2700))
-
-                    (< (- w-x pc-x) -1000)
-                    (update-in wave [:pos 0] #(+ % 2700))
-
-                    :else
-                    wave)
-        updated-xy (cond
-                     (< 700 (- w-y pc-y))
-                     (update-in updated-x [:pos 1] #(- % 1800))
-
-                     (< (- w-y pc-y) -700)
-                     (update-in updated-x [:pos 1] #(+ % 1800))
-
-                     :else
-                     wave)]
-    updated-xy))
 
 (defn update-state
   [state]

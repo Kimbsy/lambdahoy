@@ -22,8 +22,12 @@
                                  :color u/white)
                     (text/->text "You defeated every enemy ship, truly you are the bravest Pirate Captain."
                                  [(* (q/width) 1/2)
-                                  (* (q/height) 5/20)]
+                                  (* (q/height) 1/4)]
                                  :style :italic
+                                 :color u/white)
+                    (text/->text "Max difficulty reached: 1"
+                                 [(* (q/width) 1/2)
+                                  (* (q/height) 6/20)]
                                  :color u/white)]
           :defeat  [(text/->text "Defeat."
                                  [(* (q/width) 1/2)
@@ -34,6 +38,10 @@
                                  [(* (q/width) 1/2)
                                   (* (q/height) 5/20)]
                                  :style :italic
+                                 :color u/white)
+                    (text/->text "Max difficulty reached: 1"
+                                 [(* (q/width) 1/2)
+                                  (* (q/height) 6/20)]
                                  :color u/white)]}
    
    :buttons {:victory [(button/->button "Harder!"
@@ -80,9 +88,12 @@
    :difficulty (inc difficulty)})
 
 (defn update-state
-  [{:keys [outcome] :as state}]
-  (update-in state [:sprites :end :characters outcome]
-             #(map sprite/update-self %)))
+  [{:keys [outcome difficulty] :as state}]
+  (-> state
+      (update-in [:sprites :end :characters outcome]
+                 #(map sprite/update-self %))
+      (update-in [:sprites :end :text outcome 2]
+                 #(assoc % :content (str "Max difficulty reached: " difficulty)))))
 
 (defn draw-state
   [{:keys [outcome] :as state}]

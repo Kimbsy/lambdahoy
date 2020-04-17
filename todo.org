@@ -30,7 +30,7 @@
 **** ball/ball collisions?
 ** map
 *** DONE should be big, camera should follow ship around
-*** TODO wave textures
+*** DONE wave textures
 *** maybe islands?
 *** maybe bounded ocean?
 ** DONE menu screen

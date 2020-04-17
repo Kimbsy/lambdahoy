@@ -9,7 +9,7 @@
             [quil.core :as q]
             [quil.middleware :as m]))
 
-(def starting-difficulty 0)
+(def starting-difficulty 1)
 
 (defn setup
   []
